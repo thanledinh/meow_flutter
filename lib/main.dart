@@ -9,6 +9,10 @@ import 'config/router.dart';
 import 'providers/auth_provider.dart';
 import 'services/firebase_messaging_service.dart';
 import 'config/secrets.dart';
+import 'api/api_client.dart';
+
+/// Global navigator key — used by 401 handler to force-navigate to login
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,11 +44,20 @@ class MoewApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => AuthProvider(),
+      create: (_) {
+        final auth = AuthProvider();
+        // Wire 401 → auto logout + force navigate to login
+        ApiClient().setOnUnauthorized(() {
+          auth.onLogout();
+          navigatorKey.currentState?.pushNamedAndRemoveUntil('/login', (_) => false);
+        });
+        return auth;
+      },
       child: Consumer<AuthProvider>(
         builder: (context, auth, _) {
           return MaterialApp(
             title: 'Moew',
+            navigatorKey: navigatorKey,
             debugShowCheckedModeBanner: false,
             theme: MoewTheme.light,
             onGenerateRoute: generateRoute,

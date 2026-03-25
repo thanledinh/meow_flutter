@@ -23,13 +23,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   // Drawer menu items
   static const _drawerItems = [
     {'key': 'profile', 'label': 'Hồ sơ cá nhân', 'icon': Icons.person_outline, 'route': '/profile'},
-    {'key': 'public', 'label': 'Trang công khai', 'icon': Icons.public, 'route': '/public-profile'},
-    {'key': 'ai', 'label': 'AI Thức ăn', 'icon': Icons.auto_awesome, 'route': '/food-analysis'},
-    {'key': 'camera', 'label': 'Camera', 'icon': Icons.camera_alt_outlined, 'route': '/camera'},
-    {'key': 'clinics', 'label': 'Phòng khám', 'icon': Icons.medical_services_outlined, 'route': '/clinic-list'},
-    {'key': 'wallet', 'label': 'Ví Meow-Care', 'icon': Icons.account_balance_wallet_outlined, 'route': '/wallet'},
-    {'key': 'sosHistory', 'label': 'Lịch sử SOS', 'icon': Icons.monitor_heart_outlined, 'route': '/sos-history'},
     {'key': 'notif', 'label': 'Thông báo', 'icon': Icons.notifications_outlined, 'route': '/notifications'},
+    {'key': 'wallet', 'label': 'Ví Meow-Care', 'icon': Icons.account_balance_wallet_outlined, 'route': '/wallet'},
     {'key': 'divider'},
     {'key': 'bookings', 'label': 'Lịch sử đặt lịch', 'icon': Icons.calendar_month_outlined, 'route': '/booking-history'},
   ];
@@ -188,30 +183,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ],
           ),
 
-          // ═══ SOS FAB ═══
-          Positioned(
-            right: 20, bottom: 100,
-            child: GestureDetector(
-              onTap: () => Navigator.pushNamed(context, '/sos'),
-              child: Container(
-                width: 60, height: 60,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE53935),
-                  borderRadius: BorderRadius.circular(30),
-                  boxShadow: [
-                    BoxShadow(color: const Color(0xFFE53935).withValues(alpha: 0.4), offset: const Offset(0, 4), blurRadius: 8),
-                  ],
-                ),
-                child: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.warning_amber, size: 24, color: Colors.white),
-                    Text('SOS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 1)),
-                  ],
-                ),
-              ),
-            ),
-          ),
 
           // ═══ Drawer Overlay ═══
           if (_drawerOpen) ...[
@@ -287,6 +258,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       // Logout
                       const Divider(height: 1, color: MoewColors.border),
                       ListTile(
+                        leading: const Icon(Icons.settings_outlined, size: 20, color: MoewColors.textMain),
+                        title: const Text('Cài đặt', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                        onTap: () {
+                          _closeDrawer();
+                          Future.delayed(const Duration(milliseconds: 300), () {
+                            if (mounted) Navigator.pushNamed(context, '/settings');
+                          });
+                        },
+                      ),
+                      ListTile(
                         leading: const Icon(Icons.logout, size: 20, color: MoewColors.danger),
                         title: const Text('Đăng xuất', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: MoewColors.danger)),
                         onTap: _handleLogout,
@@ -308,7 +289,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       {'icon': Icons.pets, 'label': 'Thú cưng', 'color': MoewColors.primary, 'route': '/pet-profile'},
       {'icon': Icons.medical_services_outlined, 'label': 'Y tế', 'color': MoewColors.success, 'route': '/clinic-list'},
       {'icon': Icons.auto_awesome, 'label': 'AI Phân tích', 'color': MoewColors.accent, 'route': '/food-analysis'},
-      {'icon': Icons.account_balance_wallet, 'label': 'Ví', 'color': MoewColors.secondary, 'route': '/wallet'},
+      {'icon': Icons.restaurant, 'label': 'Cho ăn', 'color': MoewColors.secondary, 'route': '/feeding-today'},
     ];
     return GridView.count(
       crossAxisCount: 2,

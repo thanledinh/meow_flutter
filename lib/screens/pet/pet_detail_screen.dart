@@ -4,6 +4,7 @@ import '../../config/theme.dart';
 import '../../api/pet_api.dart';
 import '../../api/api_client.dart';
 import '../../widgets/common_widgets.dart';
+import '../../widgets/toast.dart';
 
 class PetDetailScreen extends StatefulWidget {
   final dynamic petId;
@@ -49,11 +50,36 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                   _card([
                     _row('Giống', _pet!['breed'] ?? 'Chưa rõ'),
                     _row('Giới tính', _pet!['gender'] == 'male' ? 'Đực' : (_pet!['gender'] == 'female' ? 'Cái' : _pet!['gender'] ?? 'Chưa rõ')),
-                    _row('Cân nặng', _pet!['weight'] != null ? '${_pet!['weight']} kg' : 'Chưa rõ'),
                     _row('Màu lông', _pet!['color'] ?? 'Chưa rõ'),
                     if (_pet!['birthDate'] != null) _row('Ngày sinh', _pet!['birthDate'].toString().length >= 10 ? _pet!['birthDate'].toString().substring(0, 10) : _pet!['birthDate'].toString()),
                     if (_pet!['features'] != null) _row('Đặc điểm', _pet!['features'].toString()),
                   ]),
+                  const SizedBox(height: MoewSpacing.md),
+
+                  // Weight section
+                  Container(
+                    padding: const EdgeInsets.all(MoewSpacing.md),
+                    decoration: BoxDecoration(color: MoewColors.white, borderRadius: BorderRadius.circular(MoewRadius.lg), boxShadow: MoewShadows.card),
+                    child: Row(children: [
+                      Container(
+                        width: 44, height: 44,
+                        decoration: BoxDecoration(color: MoewColors.accent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(MoewRadius.sm)),
+                        child: const Icon(Icons.monitor_weight, size: 22, color: MoewColors.accent),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        const Text('Cân nặng', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: MoewColors.textMain)),
+                        Text(_pet!['weight'] != null ? '${_pet!['weight']} kg' : 'Chưa cập nhật', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: _pet!['weight'] != null ? MoewColors.accent : MoewColors.textSub)),
+                      ])),
+                      ElevatedButton.icon(
+                        onPressed: _showAddWeight,
+                        icon: const Icon(Icons.add, size: 16, color: Colors.white),
+                        label: const Text('Cân mới', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+                        style: ElevatedButton.styleFrom(backgroundColor: MoewColors.accent, padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
+                      ),
+                    ]),
+                  ),
+
                   // Notes
                   if (_pet!['notes'] != null && _pet!['notes'].toString().isNotEmpty) ...[
                     const SizedBox(height: MoewSpacing.md),
@@ -73,9 +99,55 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                   ],
                   const SizedBox(height: MoewSpacing.md),
                   // Quick links
-                  _actionRow('Hồ sơ y tế', Icons.medical_services_outlined, MoewColors.success, () => Navigator.pushNamed(context, '/medical', arguments: widget.petId)),
+                  _actionRow('Theo dõi cân nặng', Icons.monitor_weight_outlined, MoewColors.accent, () => Navigator.pushNamed(context, '/pet-weight', arguments: widget.petId)),
+                  _actionRow('Lịch tiêm chủng', Icons.vaccines_outlined, MoewColors.success, () => Navigator.pushNamed(context, '/pet-vaccines', arguments: widget.petId)),
+                  _actionRow('Hồ sơ y tế', Icons.medical_services_outlined, MoewColors.primary, () => Navigator.pushNamed(context, '/medical', arguments: widget.petId)),
                   _actionRow('Lịch sử ăn', Icons.restaurant_outlined, MoewColors.secondary, () => Navigator.pushNamed(context, '/food-history', arguments: widget.petId)),
                 ]),
+    );
+  }
+
+  Future<void> _showAddWeight() async {
+    final ctrl = TextEditingController();
+    bool saving = false;
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => StatefulBuilder(builder: (ctx, setBS) => Padding(
+        padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(ctx).viewInsets.bottom + 20),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          const Text('Cân mới', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+          const SizedBox(height: 14),
+          TextField(
+            controller: ctrl,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: const InputDecoration(labelText: 'Cân nặng (kg)', prefixIcon: Icon(Icons.monitor_weight, size: 18), suffixText: 'kg'),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(width: double.infinity, child: ElevatedButton(
+            onPressed: saving ? null : () async {
+              if (ctrl.text.trim().isEmpty) { MoewToast.show(ctx, message: 'Nhập cân nặng', type: ToastType.warning); return; }
+              setBS(() => saving = true);
+              final weight = double.tryParse(ctrl.text.trim()) ?? 0;
+              final res = await PetApi.addWeight(widget.petId, {'weight': weight});
+              if (!mounted) return;
+              setBS(() => saving = false);
+              if (res.success) {
+                Navigator.pop(ctx);
+                MoewToast.show(context, message: 'Đã ghi nhận!', type: ToastType.success);
+                _fetch();
+              } else {
+                MoewToast.show(ctx, message: res.error ?? 'Lỗi', type: ToastType.error);
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: MoewColors.accent, padding: const EdgeInsets.symmetric(vertical: 14)),
+            child: saving
+                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                : const Text('Lưu', style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
+          )),
+        ]),
+      )),
     );
   }
 

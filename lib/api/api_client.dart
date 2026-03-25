@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'local_cache.dart';
 
 // ═══════════════════════════════════════════
 // CẤU HÌNH
@@ -21,12 +22,14 @@ class ApiResponse {
   final dynamic data;
   final int status;
   final String? error;
+  final bool fromCache;
 
   ApiResponse({
     required this.success,
     this.data,
     required this.status,
     this.error,
+    this.fromCache = false,
   });
 }
 
@@ -95,6 +98,7 @@ class ApiClient {
     if (_isHandling401) return;
     _isHandling401 = true;
     TokenManager.clear();
+    LocalCache.clear(); // Clear offline cache on logout
     _onUnauthorized?.call();
     Future.delayed(const Duration(seconds: 3), () {
       _isHandling401 = false;
@@ -180,6 +184,10 @@ class ApiClient {
       if (response.statusCode >= 200 &&
           response.statusCode < 300 &&
           responseData?['success'] != false) {
+        // Cache successful GET responses for offline use
+        if (method.toUpperCase() == 'GET') {
+          LocalCache.save(endpoint, response.body);
+        }
         return ApiResponse(
           success: true,
           data: responseData,
@@ -198,12 +206,28 @@ class ApiClient {
             responseData?['message'] ?? 'Lỗi server: ${response.statusCode}',
       );
     } on TimeoutException {
+      // Try cache on timeout (GET only)
+      if (method.toUpperCase() == 'GET') {
+        final cached = await LocalCache.load(endpoint);
+        if (cached != null) {
+          debugPrint('⚡ Cache hit (timeout): $endpoint');
+          return ApiResponse(success: true, data: cached, status: 200, fromCache: true);
+        }
+      }
       return ApiResponse(
         success: false,
         status: 0,
         error: 'Request timeout — kiểm tra kết nối mạng.',
       );
     } catch (e) {
+      // Try cache on network error (GET only)
+      if (method.toUpperCase() == 'GET') {
+        final cached = await LocalCache.load(endpoint);
+        if (cached != null) {
+          debugPrint('⚡ Cache hit (offline): $endpoint');
+          return ApiResponse(success: true, data: cached, status: 200, fromCache: true);
+        }
+      }
       return ApiResponse(
         success: false,
         status: 0,

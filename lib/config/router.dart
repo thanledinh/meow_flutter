@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
-import '../screens/home/home_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../screens/profile/public_profile_screen.dart';
 import '../screens/profile/ekyc_screen.dart';
 import '../screens/pet/pet_profile_screen.dart';
 import '../screens/pet/pet_detail_screen.dart';
+import '../screens/pet/pet_weight_screen.dart';
+import '../screens/pet/pet_vaccine_screen.dart';
 import '../screens/pet/add_pet_screen.dart';
 import '../screens/medical/medical_screen.dart';
 import '../screens/medical/add_medical_screen.dart';
 import '../screens/medical/cost_breakdown_screen.dart';
 import '../screens/medical/medical_detail_screen.dart';
 import '../screens/ai/food_analysis_screen.dart';
-import '../screens/ai/food_history_screen.dart';
+import '../screens/feeding/food_history_screen.dart';
 import '../screens/ai/ai_chat_screen.dart';
 import '../screens/ai/camera_screen.dart';
 import '../screens/clinic/clinic_list_screen.dart';
@@ -25,6 +26,14 @@ import '../screens/sos/sos_history_screen.dart';
 import '../screens/map/guardian_map_screen.dart';
 import '../screens/wallet/wallet_screen.dart';
 import '../screens/notification/notification_screen.dart';
+import '../screens/feeding/feeding_today_screen.dart';
+import '../screens/feeding/food_products_screen.dart';
+import '../screens/feeding/feeding_plan_screen.dart';
+import '../screens/feeding/food_transition_screen.dart';
+import '../screens/feeding/nutrition_dashboard_screen.dart';
+import '../screens/ai/chat_sessions_screen.dart';
+import '../screens/settings/settings_screen.dart';
+import '../widgets/moew_not_found.dart';
 import '../widgets/main_shell.dart';
 
 /// Route generator — MaterialApp.onGenerateRoute
@@ -40,11 +49,15 @@ Route<dynamic>? generateRoute(RouteSettings settings) {
     case '/home':
       return _fade(const MainShell(), settings);
 
+    // Settings
+    case '/settings':
+      return _slide(const SettingsScreen(), settings);
+
     // Profile
     case '/profile':
       return _slide(const ProfileScreen(), settings);
     case '/public-profile':
-      return _slide(const PublicProfileScreen(), settings);
+      return _slide(const Scaffold(backgroundColor: Color(0xFFF8F8FC), body: MoewNotFound(message: 'Tính năng đang phát triển')), settings);
     case '/ekyc':
       return _slide(const EkycScreen(), settings);
 
@@ -55,6 +68,10 @@ Route<dynamic>? generateRoute(RouteSettings settings) {
       return _slide(PetDetailScreen(petId: settings.arguments), settings);
     case '/add-pet':
       return _slide(const AddPetScreen(), settings);
+    case '/pet-weight':
+      return _slide(PetWeightScreen(petId: settings.arguments), settings);
+    case '/pet-vaccines':
+      return _slide(PetVaccineScreen(petId: settings.arguments), settings);
 
     // Medical
     case '/medical':
@@ -97,6 +114,20 @@ Route<dynamic>? generateRoute(RouteSettings settings) {
     case '/booking-history':
       return _slide(const BookingHistoryScreen(), settings);
 
+    // Feeding
+    case '/feeding-today':
+      return _slide(const FeedingTodayScreen(), settings);
+    case '/food-products':
+      return _slide(const FoodProductsScreen(), settings);
+    case '/feeding-plan':
+      return _slide(const FeedingPlanScreen(), settings);
+    case '/food-transition':
+      return _slide(const FoodTransitionScreen(), settings);
+    case '/nutrition-dashboard':
+      return _slide(const NutritionDashboardScreen(), settings);
+    case '/chat-sessions':
+      return _slide(const ChatSessionsScreen(), settings);
+
     // SOS
     case '/sos':
       return _slide(const SosScreen(), settings);
@@ -117,7 +148,11 @@ Route<dynamic>? generateRoute(RouteSettings settings) {
       return _slide(const NotificationScreen(), settings);
 
     default:
-      return _fade(const LoginScreen(), settings);
+      return _slide(Scaffold(
+        backgroundColor: const Color(0xFFF8F8FC),
+        appBar: AppBar(title: const Text('404'), centerTitle: true, backgroundColor: Colors.transparent, elevation: 0),
+        body: MoewNotFound(message: 'Trang "${settings.name}" không tồn tại'),
+      ), settings);
   }
 }
 

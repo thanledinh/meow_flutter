@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import '../../config/theme.dart';
+import '../../widgets/moew_loading.dart';
 
 import '../../config/secrets.dart';
 const String _mapboxToken = mapboxSecretToken;
@@ -275,11 +276,7 @@ class _GuardianMapScreenState extends State<GuardianMapScreen> {
     if (_loading) {
       return Scaffold(
         backgroundColor: MoewColors.background,
-        body: Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const CircularProgressIndicator(color: MoewColors.primary),
-          const SizedBox(height: 16),
-          Text('Đang lấy vị trí...', style: MoewTextStyles.caption),
-        ])),
+        body: const MoewLoading(message: 'Đang lấy vị trí...'),
       );
     }
 

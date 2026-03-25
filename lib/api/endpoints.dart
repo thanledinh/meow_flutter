@@ -89,6 +89,16 @@ class Endpoints {
           dynamic petId, dynamic id, dynamic costId) =>
       '/pets/$petId/appointment/$id/costs/$costId';
 
+  // ─── Weight Tracking ──────────────────
+  static String petWeight(dynamic petId) => '/pets/$petId/weight';
+  static String petWeightDelete(dynamic petId, dynamic logId) => '/pets/$petId/weight/$logId';
+  static const petWeightReminder = '/pets/weight/reminder';
+
+  // ─── Vaccine Schedule ─────────────────
+  static String petVaccines(dynamic petId) => '/pets/$petId/vaccines';
+  static String petVaccineDetail(dynamic petId, dynamic vaccineId) => '/pets/$petId/vaccines/$vaccineId';
+  static const petVaccinesUpcoming = '/pets/vaccines/upcoming';
+
   // ─── Clinics ──────────────────────────
   static const clinics = '/clinics';
   static String clinicNearby(double lat, double lng,
@@ -113,4 +123,23 @@ class Endpoints {
   static const wallet = '/wallet';
   static const walletTopup = '/wallet/topup';
   static const walletRepay = '/wallet/repay';
+
+  // ─── Feeding System ───────────────────
+  static const feedingProducts = '/feeding/products';
+  static const feedingProductQuickAdd = '/feeding/products/quick-add';
+  static String feedingProductDelete(dynamic id) => '/feeding/products/$id';
+  static String feedingProductUpdate(dynamic id) => '/feeding/products/$id';
+  static String feedingProductRestock(dynamic id) => '/feeding/products/$id/restock';
+  static const feedingPlansGenerate = '/feeding/plans/generate';
+  static const feedingPlans = '/feeding/plans';
+  static String feedingPlanUpdate(dynamic id) => '/feeding/plans/$id';
+  static const feedingToday = '/feeding/today';
+  static String feedingConfirm(dynamic scheduleId) => '/feeding/confirm/$scheduleId';
+  static const feedingStreak = '/feeding/streak';
+  static const feedingTransition = '/feeding/transition';
+
+  // ─── Nutrition Stats ──────────────────
+  static String nutritionStats(dynamic petId) => '/feeding/nutrition/$petId';
+  static const feedingHistory = '/feeding/history';
+  static const aiChatSessions = '/ai/chat/sessions';
 }
