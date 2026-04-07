@@ -121,11 +121,11 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       backgroundColor: MoewColors.background,
       appBar: AppHeader(title: 'Đặt lịch ${widget.clinicName ?? ''}'),
       body: _loadingPets
-          ? const Center(child: CircularProgressIndicator(color: MoewColors.primary))
-          : ListView(padding: const EdgeInsets.all(MoewSpacing.lg), children: [
+          ? Center(child: CircularProgressIndicator(color: MoewColors.primary))
+          : ListView(padding: EdgeInsets.all(MoewSpacing.lg), children: [
               // ── Pet selector ──
               _buildSection('CHỌN THÚ CƯNG', Icons.pets),
-              const SizedBox(height: MoewSpacing.sm),
+              SizedBox(height: MoewSpacing.sm),
               if (_pets.isEmpty)
                 Text('Chưa có thú cưng nào', style: MoewTextStyles.caption)
               else
@@ -136,9 +136,9 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                     return GestureDetector(
                       onTap: () => setState(() => _selectedPetId = p['id']),
                       child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
+                        duration: Duration(milliseconds: 200),
                         width: 80,
-                        margin: const EdgeInsets.only(right: 10),
+                        margin: EdgeInsets.only(right: 10),
                         decoration: BoxDecoration(
                           color: active ? MoewColors.primary.withValues(alpha: 0.1) : MoewColors.white,
                           borderRadius: BorderRadius.circular(MoewRadius.md),
@@ -146,18 +146,18 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                         ),
                         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                           Icon(Icons.pets, size: 24, color: active ? MoewColors.primary : MoewColors.textSub),
-                          const SizedBox(height: 4),
+                          SizedBox(height: 4),
                           Text(p['name'] ?? '', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: active ? MoewColors.primary : MoewColors.textSub), overflow: TextOverflow.ellipsis),
                         ]),
                       ),
                     );
                   }).toList()),
                 ),
-              const SizedBox(height: MoewSpacing.lg),
+              SizedBox(height: MoewSpacing.lg),
 
               // ── Service type ──
               _buildSection('DỊCH VỤ', Icons.medical_services_outlined),
-              const SizedBox(height: MoewSpacing.sm),
+              SizedBox(height: MoewSpacing.sm),
               Wrap(spacing: 8, runSpacing: 8, children: _serviceTypes.map((s) {
                 final active = _selectedService == s['key'];
                 return GestureDetector(
@@ -166,8 +166,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                     if (s['key'] == 'other') Future.delayed(const Duration(milliseconds: 200), () => _notesFocus.requestFocus());
                   },
                   child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    duration: Duration(milliseconds: 200),
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
                       color: active ? MoewColors.success.withValues(alpha: 0.1) : MoewColors.white,
                       borderRadius: BorderRadius.circular(MoewRadius.full),
@@ -175,47 +175,47 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                     ),
                     child: Row(mainAxisSize: MainAxisSize.min, children: [
                       Icon(s['icon'] as IconData, size: 16, color: active ? MoewColors.success : MoewColors.textSub),
-                      const SizedBox(width: 6),
+                      SizedBox(width: 6),
                       Text(s['label'] as String, style: TextStyle(fontSize: 13, fontWeight: active ? FontWeight.w700 : FontWeight.w500, color: active ? MoewColors.success : MoewColors.textSub)),
                     ]),
                   ),
                 );
               }).toList()),
-              const SizedBox(height: MoewSpacing.lg),
+              SizedBox(height: MoewSpacing.lg),
 
               // ── Date ──
               _buildSection('NGÀY KHÁM', Icons.calendar_month),
-              const SizedBox(height: MoewSpacing.sm),
+              SizedBox(height: MoewSpacing.sm),
               GestureDetector(
                 onTap: _pickDate,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: BoxDecoration(color: MoewColors.white, borderRadius: BorderRadius.circular(MoewRadius.sm), border: Border.all(color: MoewColors.border)),
                   child: Row(children: [
                     Icon(Icons.calendar_month, size: 20, color: _selectedDate != null ? MoewColors.primary : MoewColors.textSub),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10),
                     Text(
                       _selectedDate != null
                           ? '${_selectedDate!.day.toString().padLeft(2, '0')}/${_selectedDate!.month.toString().padLeft(2, '0')}/${_selectedDate!.year}'
                           : 'Chọn ngày khám',
                       style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: _selectedDate != null ? MoewColors.textMain : MoewColors.textSub),
                     ),
-                    const Spacer(),
-                    const Icon(Icons.expand_more, color: MoewColors.textSub),
+                    Spacer(),
+                    Icon(Icons.expand_more, color: MoewColors.textSub),
                   ]),
                 ),
               ),
-              const SizedBox(height: MoewSpacing.lg),
+              SizedBox(height: MoewSpacing.lg),
 
               // ── Time slot ──
               _buildSection('GIỜ KHÁM (tùy chọn)', Icons.access_time),
-              const SizedBox(height: MoewSpacing.sm),
+              SizedBox(height: MoewSpacing.sm),
               Wrap(spacing: 8, runSpacing: 8, children: _timeSlots.map((t) {
                 final active = _selectedTime == t;
                 return GestureDetector(
                   onTap: () => setState(() => _selectedTime = active ? null : t),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
                       color: active ? MoewColors.accent.withValues(alpha: 0.1) : MoewColors.white,
                       borderRadius: BorderRadius.circular(MoewRadius.sm),
@@ -225,41 +225,41 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                   ),
                 );
               }).toList()),
-              const SizedBox(height: MoewSpacing.lg),
+              SizedBox(height: MoewSpacing.lg),
 
               // ── Notes (visible when 'Khác' selected) ──
               if (_selectedService == 'other') ...[
                 _buildSection('MÔ TẢ DỊCH VỤ (bắt buộc)', Icons.edit_note),
-                const SizedBox(height: MoewSpacing.sm),
+                SizedBox(height: MoewSpacing.sm),
                 TextField(
                   controller: _notesCtrl,
                   focusNode: _notesFocus,
                   maxLines: 3,
                   decoration: InputDecoration(
                     hintText: 'Mô tả dịch vụ bạn cần...',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(MoewRadius.sm), borderSide: const BorderSide(color: MoewColors.success, width: 2)),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(MoewRadius.sm), borderSide: const BorderSide(color: MoewColors.success, width: 2)),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(MoewRadius.sm), borderSide: BorderSide(color: MoewColors.success, width: 2)),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(MoewRadius.sm), borderSide: BorderSide(color: MoewColors.success, width: 2)),
                   ),
                 ),
               ],
-              const SizedBox(height: MoewSpacing.xl),
+              SizedBox(height: MoewSpacing.xl),
 
               // ── Submit ──
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _loading ? null : _submit,
-                  style: ElevatedButton.styleFrom(backgroundColor: MoewColors.success, padding: const EdgeInsets.symmetric(vertical: 16)),
+                  style: ElevatedButton.styleFrom(backgroundColor: MoewColors.success, padding: EdgeInsets.symmetric(vertical: 16)),
                   child: _loading
-                      ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      ? SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                       : Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                          const Icon(Icons.check_circle, size: 20, color: Colors.white),
-                          const SizedBox(width: 8),
+                          Icon(Icons.check_circle, size: 20, color: Colors.white),
+                          SizedBox(width: 8),
                           Text('Xác nhận đặt lịch', style: MoewTextStyles.button),
                         ]),
                 ),
               ),
-              const SizedBox(height: MoewSpacing.lg),
+              SizedBox(height: MoewSpacing.lg),
             ]),
     );
   }
@@ -267,7 +267,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   Widget _buildSection(String title, IconData icon) {
     return Row(children: [
       Icon(icon, size: 16, color: MoewColors.textSub),
-      const SizedBox(width: 6),
+      SizedBox(width: 6),
       Text(title, style: MoewTextStyles.label),
     ]);
   }

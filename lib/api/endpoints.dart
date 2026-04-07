@@ -13,6 +13,13 @@ class Endpoints {
   static const authAccount = '/auth/account';
   static const authEkyc = '/auth/ekyc';
   static const authEkycStatus = '/auth/ekyc/status';
+  static const authSocialLogin = '/auth/social-login';
+
+  // ─── Users & Social Interaction ──────────
+  static String userPublicProfile(dynamic id) => '/users/$id';
+  static String userFollow(dynamic id) => '/users/$id/follow';
+  static String userFollowers(dynamic id) => '/users/$id/followers';
+  static String userFollowing(dynamic id) => '/users/$id/following';
 
   // ─── Pets ────────────────────────────────
   static const pets = '/pets';
@@ -27,16 +34,22 @@ class Endpoints {
   static const notificationsSendAll = '/notifications/send-all';
   static const notificationsToken = '/notifications/token';
   static const notifications = '/notifications';
+  static String notificationRead(dynamic id) => '/notifications/$id/read';
+  static const notificationsReadAll = '/notifications/read-all';
 
   // ─── Upload ─────────────────────────────
   static const uploadImage = '/upload/image';
   static const uploadAvatar = '/upload/avatar';
 
   // ─── Social / Feed ──────────────────────
-  static const feed = '/feed';
-  static String feedDetail(dynamic id) => '/feed/$id';
-  static String feedLike(dynamic id) => '/feed/$id/like';
-  static String feedComments(dynamic id) => '/feed/$id/comments';
+  static const posts = '/posts';
+  static const postsMe = '/posts/me';
+  static String postsPet(dynamic id) => '/posts/pet/$id';
+  static String postDetail(dynamic id) => '/posts/$id';
+  static String postUpdate(dynamic id) => '/posts/$id';
+  static String postLike(dynamic id) => '/posts/$id/like';
+  static String postComments(dynamic id) => '/posts/$id/comments';
+  static String postCommentDelete(dynamic postId, dynamic commentId) => '/posts/$postId/comments/$commentId';
 
   // ─── AI / Food Analysis & Chat ─────────
   static const aiAnalyzeFood = '/ai/analyze-food';

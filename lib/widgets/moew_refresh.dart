@@ -107,8 +107,8 @@ class _MoewRefreshState extends State<MoewRefresh> with SingleTickerProviderStat
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: _handleRefresh,
-      color: const Color(0x00000000),
-      backgroundColor: const Color(0x00000000),
+      color: Color(0x00000000),
+      backgroundColor: Color(0x00000000),
       strokeWidth: 0.01,
       displacement: 100,
       triggerMode: RefreshIndicatorTriggerMode.onEdge,

@@ -39,11 +39,11 @@ class MedicalDetailScreen extends StatelessWidget {
       backgroundColor: MoewColors.background,
       appBar: AppHeader(title: _typeTitle(type)),
       body: ListView(
-        padding: const EdgeInsets.all(MoewSpacing.lg),
+        padding: EdgeInsets.all(MoewSpacing.lg),
         children: [
           // ── Header card ──
           Container(
-            padding: const EdgeInsets.all(MoewSpacing.lg),
+            padding: EdgeInsets.all(MoewSpacing.lg),
             decoration: BoxDecoration(
               color: MoewColors.white,
               borderRadius: BorderRadius.circular(MoewRadius.xl),
@@ -59,20 +59,20 @@ class MedicalDetailScreen extends StatelessWidget {
                   ),
                   child: Icon(_typeIcon(type), size: 24, color: _statusColor(status)),
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: 14),
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(name, style: MoewTextStyles.h3),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   if (status != null) StatusBadge(label: _statusLabel(status), color: _statusColor(status), icon: Icons.circle),
                 ])),
               ]),
               if (type.isNotEmpty) ...[
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 _chip(_typeLabel(type), MoewColors.primary),
               ],
             ]),
           ),
-          const SizedBox(height: MoewSpacing.md),
+          SizedBox(height: MoewSpacing.md),
 
           // ── Info card ──
           _card([
@@ -89,7 +89,7 @@ class MedicalDetailScreen extends StatelessWidget {
             if (record['veterinarian'] != null) _row('Bác sĩ', record['veterinarian'].toString(), Icons.person_outline, MoewColors.accent),
             if (record['clinic'] != null) _row('Phòng khám', record['clinic'].toString(), Icons.medical_services_outlined, MoewColors.primary),
           ]),
-          const SizedBox(height: MoewSpacing.md),
+          SizedBox(height: MoewSpacing.md),
 
           // ── Time & Cost card ──
           _card([
@@ -100,19 +100,19 @@ class MedicalDetailScreen extends StatelessWidget {
 
           // ── Notes ──
           if (record['notes'] != null && record['notes'].toString().isNotEmpty) ...[
-            const SizedBox(height: MoewSpacing.md),
+            SizedBox(height: MoewSpacing.md),
             Container(
-              padding: const EdgeInsets.all(MoewSpacing.md),
+              padding: EdgeInsets.all(MoewSpacing.md),
               decoration: BoxDecoration(
                 color: MoewColors.tintYellow,
                 borderRadius: BorderRadius.circular(MoewRadius.lg),
               ),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                const Icon(Icons.note_outlined, size: 20, color: MoewColors.secondary),
-                const SizedBox(width: 10),
+                Icon(Icons.note_outlined, size: 20, color: MoewColors.secondary),
+                SizedBox(width: 10),
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text('GHI CHÚ', style: MoewTextStyles.label),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(record['notes'].toString(), style: MoewTextStyles.body),
                 ])),
               ]),
@@ -121,26 +121,26 @@ class MedicalDetailScreen extends StatelessWidget {
 
           // ── Related record ──
           if (record['relatedFrom'] is Map) ...[
-            const SizedBox(height: MoewSpacing.md),
+            SizedBox(height: MoewSpacing.md),
             Container(
-              padding: const EdgeInsets.all(MoewSpacing.md),
+              padding: EdgeInsets.all(MoewSpacing.md),
               decoration: BoxDecoration(
                 color: MoewColors.tintBlue,
                 borderRadius: BorderRadius.circular(MoewRadius.lg),
               ),
               child: Row(children: [
-                const Icon(Icons.link, size: 20, color: MoewColors.primary),
-                const SizedBox(width: 10),
+                Icon(Icons.link, size: 20, color: MoewColors.primary),
+                SizedBox(width: 10),
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text('LIÊN QUAN', style: MoewTextStyles.label),
-                  const SizedBox(height: 4),
-                  Text((record['relatedFrom'] as Map)['name']?.toString() ?? 'Hồ sơ liên quan', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: MoewColors.primary)),
+                  SizedBox(height: 4),
+                  Text((record['relatedFrom'] as Map)['name']?.toString() ?? 'Hồ sơ liên quan', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: MoewColors.primary)),
                 ])),
               ]),
             ),
           ],
 
-          const SizedBox(height: MoewSpacing.md),
+          SizedBox(height: MoewSpacing.md),
 
           // ── Cost breakdown button ──
           OutlinedButton.icon(
@@ -149,14 +149,14 @@ class MedicalDetailScreen extends StatelessWidget {
               'recordId': record['id'] ?? record['_id'],
               'type': type.isNotEmpty ? type : 'medical',
             }),
-            icon: const Icon(Icons.receipt_long, color: MoewColors.secondary),
+            icon: Icon(Icons.receipt_long, color: MoewColors.secondary),
             label: Text('Xem chi phí chi tiết', style: TextStyle(color: MoewColors.secondary, fontWeight: FontWeight.w700)),
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: MoewColors.secondary),
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              side: BorderSide(color: MoewColors.secondary),
+              padding: EdgeInsets.symmetric(vertical: 14),
             ),
           ),
-          const SizedBox(height: MoewSpacing.lg),
+          SizedBox(height: MoewSpacing.lg),
 
           // ── Timestamp ──
           if (record['createdAt'] != null)
@@ -172,9 +172,9 @@ class MedicalDetailScreen extends StatelessWidget {
 
   Widget _card(List<Widget> children) {
     final filtered = children.where((w) => w is! SizedBox).toList();
-    if (filtered.isEmpty) return const SizedBox.shrink();
+    if (filtered.isEmpty) return SizedBox.shrink();
     return Container(
-      padding: const EdgeInsets.all(MoewSpacing.md),
+      padding: EdgeInsets.all(MoewSpacing.md),
       decoration: BoxDecoration(color: MoewColors.white, borderRadius: BorderRadius.circular(MoewRadius.lg), boxShadow: MoewShadows.card),
       child: Column(children: children),
     );
@@ -182,18 +182,18 @@ class MedicalDetailScreen extends StatelessWidget {
 
   Widget _row(String label, String value, IconData icon, Color color) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: EdgeInsets.symmetric(vertical: 8),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Container(
           width: 36, height: 36,
           decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
           child: Icon(icon, size: 18, color: color),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(label, style: MoewTextStyles.label),
-          const SizedBox(height: 2),
-          Text(value, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: MoewColors.textMain)),
+          SizedBox(height: 2),
+          Text(value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: MoewColors.textMain)),
         ])),
       ]),
     );
@@ -201,7 +201,7 @@ class MedicalDetailScreen extends StatelessWidget {
 
   Widget _chip(String text, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
       child: Text(text, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: color)),
     );

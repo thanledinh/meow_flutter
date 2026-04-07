@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../config/theme.dart';
+import '../providers/preferences_provider.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/pet/pet_profile_screen.dart';
-import '../screens/clinic/clinic_list_screen.dart';
+import '../screens/feeding/feeding_today_screen.dart';
+import '../screens/ai/food_analysis_screen.dart';
+import '../screens/notification/notification_screen.dart';
 
 class MainShell extends StatefulWidget {
   final int initialTab;
@@ -14,6 +18,7 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   late int _currentTab;
   final Set<int> _loadedTabs = {0};
+  final GlobalKey<HomeScreenState> _homeKey = GlobalKey<HomeScreenState>();
 
   @override
   void initState() {
@@ -23,9 +28,8 @@ class _MainShellState extends State<MainShell> {
   }
 
   void _switchTab(int index) {
-    // Tab 1 (Map) — open as separate route, not embedded
-    if (index == 1) {
-      Navigator.pushNamed(context, '/guardian-map');
+    // Cuộn lên đầu nếu tap lại trang chủ
+    if (index == 0 && _currentTab == 0) {
       return;
     }
     setState(() {
@@ -36,19 +40,23 @@ class _MainShellState extends State<MainShell> {
 
   Widget _buildTab(int index) {
     if (!_loadedTabs.contains(index)) {
-      return const SizedBox.shrink();
+      return SizedBox.shrink();
     }
     switch (index) {
-      case 0: return const HomeScreen();
-      case 1: return const SizedBox.shrink(); // Map opens as separate route
-      case 2: return const PetProfileScreen();
-      case 3: return const ClinicListScreen();
-      default: return const SizedBox.shrink();
+      case 0: return HomeScreen(key: _homeKey);
+      case 1: return const PetProfileScreen();
+      case 2: return const NotificationScreen();
+      case 3: return const FeedingTodayScreen();
+      case 4: return const FoodAnalysisScreen();
+      default: return SizedBox.shrink();
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Watch provider to rebuild the shell/tabbar instantly when Theme changes.
+    context.watch<PreferencesProvider>();
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
@@ -57,9 +65,11 @@ class _MainShellState extends State<MainShell> {
         }
       },
       child: Scaffold(
+        extendBody: true,
+        backgroundColor: MoewColors.background,
         body: IndexedStack(
           index: _currentTab,
-          children: List.generate(4, (i) => _buildTab(i)),
+          children: List.generate(5, (i) => _buildTab(i)),
         ),
         bottomNavigationBar: _buildBottomNav(),
       ),
@@ -67,22 +77,37 @@ class _MainShellState extends State<MainShell> {
   }
 
   Widget _buildBottomNav() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), offset: const Offset(0, -2), blurRadius: 12)],
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(14, 8, 14, 12),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(32),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.10),
+                offset: const Offset(0, 4),
+                blurRadius: 24,
+                spreadRadius: 0,
+              ),
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                offset: const Offset(0, 1),
+                blurRadius: 6,
+              ),
+            ],
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _navBtn(Icons.home_rounded, 'Trang chủ', 0),
-              _navBtn(Icons.location_on_outlined, 'Bản đồ', 1),
-              _navBtn(Icons.pets_outlined, 'Thú cưng', 2),
-              _navBtn(Icons.medical_services_outlined, 'Phòng khám', 3),
+              Expanded(child: _navBtn(Icons.home_rounded, 'Trang chủ', 0)),
+              Expanded(child: _navBtn(Icons.restaurant_outlined, 'Cho ăn', 3)),
+              Expanded(child: _navCenterBtn(Icons.pets_rounded, 'Thú cưng', 1)),
+              Expanded(child: _navBtn(Icons.notifications_outlined, 'Thông báo', 2)),
+              Expanded(child: _navBtn(Icons.auto_awesome_outlined, 'AI', 4)),
             ],
           ),
         ),
@@ -93,19 +118,96 @@ class _MainShellState extends State<MainShell> {
   Widget _navBtn(IconData icon, String label, int index) {
     final active = _currentTab == index;
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () => _switchTab(index),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        decoration: BoxDecoration(
-          color: active ? MoewColors.accent.withValues(alpha: 0.1) : Colors.transparent,
-          borderRadius: BorderRadius.circular(MoewRadius.full),
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedContainer(
+              duration: Duration(milliseconds: 220),
+              curve: Curves.easeOutCubic,
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: active ? MoewColors.accent.withValues(alpha: 0.13) : Colors.transparent,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: AnimatedScale(
+                scale: active ? 1.1 : 1.0,
+                duration: Duration(milliseconds: 220),
+                curve: Curves.easeOutCubic,
+                child: Icon(icon, size: 20,
+                  color: active ? MoewColors.accent : MoewColors.textSub),
+              ),
+            ),
+            SizedBox(height: 3),
+            AnimatedDefaultTextStyle(
+              duration: Duration(milliseconds: 220),
+              style: TextStyle(
+                fontSize: 9,
+                fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                color: active ? MoewColors.accent : MoewColors.textSub,
+              ),
+              child: Text(label),
+            ),
+          ],
         ),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(icon, size: 22, color: active ? MoewColors.accent : MoewColors.textSub),
-          const SizedBox(height: 2),
-          Text(label, style: TextStyle(fontSize: 10, fontWeight: active ? FontWeight.w700 : FontWeight.w500, color: active ? MoewColors.accent : MoewColors.textSub)),
-        ]),
+      ),
+    );
+  }
+
+  // Nút giữa — Thú cưng LUÔN nổi bật dù active hay không
+  Widget _navCenterBtn(IconData icon, String label, int index) {
+    final active = _currentTab == index;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => _switchTab(index),
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOutCubic,
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+              decoration: BoxDecoration(
+                // Luôn filled gradient theo theme hiện tại
+                gradient: LinearGradient(
+                  colors: [MoewColors.primary, MoewColors.accent],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: MoewColors.primary.withValues(alpha: active ? 0.5 : 0.25),
+                    blurRadius: active ? 16 : 8,
+                    offset: const Offset(0, 4),
+                    spreadRadius: active ? 1 : 0,
+                  ),
+                ],
+              ),
+              child: AnimatedScale(
+                scale: active ? 1.12 : 1.0,
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutCubic,
+                child: Icon(icon, size: 22, color: Colors.white),
+              ),
+            ),
+            SizedBox(height: 3),
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 220),
+              style: TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.w800,
+                color: MoewColors.primary,
+              ),
+              child: Text(label),
+            ),
+          ],
+        ),
       ),
     );
   }

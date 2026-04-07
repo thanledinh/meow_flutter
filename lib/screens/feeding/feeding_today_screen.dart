@@ -3,6 +3,7 @@ import '../../config/theme.dart';
 import '../../api/feeding_api.dart';
 import '../../widgets/toast.dart';
 import '../../widgets/common_widgets.dart';
+import '../../widgets/eat_status_picker.dart';
 
 class FeedingTodayScreen extends StatefulWidget {
   const FeedingTodayScreen({super.key});
@@ -37,53 +38,122 @@ class _FeedingTodayScreenState extends State<FeedingTodayScreen> {
 
   Future<void> _confirmMeal(Map<String, dynamic> meal) async {
     final noteCtrl = TextEditingController();
+    EatStatus selectedStatus = EatStatus.ateAll;
+
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(MoewRadius.lg)),
-        title: Row(children: [
-          const Icon(Icons.restaurant, color: MoewColors.success, size: 22),
-          const SizedBox(width: 8),
-          Expanded(child: Text('Cho ${meal['petName']} ăn ${meal['label']}?', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700))),
-        ]),
-        content: Column(mainAxisSize: MainAxisSize.min, children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: MoewColors.surface, borderRadius: BorderRadius.circular(MoewRadius.sm)),
-            child: Row(children: [
-              const Icon(Icons.scale, size: 16, color: MoewColors.textSub),
-              const SizedBox(width: 8),
-              Text('${meal['portionGrams']}g ${meal['foodName']}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(MoewRadius.lg)),
+          title: Row(children: [
+            Icon(Icons.restaurant, color: MoewColors.success, size: 22),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Xác nhận cho ${meal['petName']} ăn',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              ),
+            ),
+          ]),
+          content: SingleChildScrollView(
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              // Meal info chip
+              Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: MoewColors.surface,
+                  borderRadius: BorderRadius.circular(MoewRadius.sm),
+                ),
+                child: Row(children: [
+                  Icon(Icons.scale, size: 16, color: MoewColors.textSub),
+                  SizedBox(width: 8),
+                  Text(
+                    '${meal['label']} • ${meal['portionGrams']}g ${meal['foodName']}',
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                  ),
+                ]),
+              ),
+              SizedBox(height: 14),
+
+              // EatStatus Picker
+              EatStatusPicker(
+                initialStatus: EatStatus.ateAll,
+                onChanged: (s) {
+                  setDialogState(() => selectedStatus = s);
+                },
+              ),
+              SizedBox(height: 14),
+
+              // Note field
+              TextField(
+                controller: noteCtrl,
+                decoration: const InputDecoration(
+                  hintText: 'Ghi chú (tùy chọn)',
+                  prefixIcon: Icon(Icons.edit_note, size: 18),
+                ),
+              ),
             ]),
           ),
-          const SizedBox(height: 12),
-          TextField(controller: noteCtrl, decoration: const InputDecoration(hintText: 'Ghi chú (tùy chọn)', prefixIcon: Icon(Icons.edit_note, size: 18))),
-        ]),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Hủy')),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: ElevatedButton.styleFrom(backgroundColor: MoewColors.success),
-            child: const Text('Xác nhận', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
-          ),
-        ],
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text('Hủy'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              style: ElevatedButton.styleFrom(backgroundColor: MoewColors.success),
+              child: Text(
+                'Xác nhận',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+              ),
+            ),
+          ],
+        ),
       ),
     );
     if (confirmed != true) return;
 
-    final res = await FeedingApi.confirmMeal(meal['scheduleId'], note: noteCtrl.text.trim().isEmpty ? null : noteCtrl.text.trim());
+    final res = await FeedingApi.confirmMeal(
+      meal['scheduleId'],
+      eatStatus: selectedStatus.value,
+      note: noteCtrl.text.trim().isEmpty ? null : noteCtrl.text.trim(),
+    );
     if (!mounted) return;
+
     if (res.success) {
-      final d = res.data is Map ? (res.data['data'] is Map ? res.data['data'] : res.data) : res.data;
-      MoewToast.show(context, message: res.data?['message'] ?? 'Đã xác nhận!', type: ToastType.success);
-      // Show early/late warning if present
+      final d = res.data is Map
+          ? (res.data['data'] is Map ? res.data['data'] : res.data)
+          : res.data;
+
+      // Early/Late warning
       if (d is Map && d['warning'] != null && d['warning'].toString().isNotEmpty) {
         Future.delayed(const Duration(milliseconds: 800), () {
           if (!mounted) return;
-          MoewToast.show(context, message: d['warning'].toString(), type: d['isLate'] == true ? ToastType.error : ToastType.warning);
+          MoewToast.show(
+            context,
+            message: d['warning'].toString(),
+            type: d['isLate'] == true ? ToastType.error : ToastType.warning,
+          );
         });
       }
-      _fetch();
+
+      // Flagged snackbar (ate_little / ate_none)
+      final isFlagged = d is Map && d['isFlagged'] == true;
+      if (isFlagged) {
+        MoewToast.show(
+          context,
+          message: 'Đã ghi nhận 🐾 Nếu bé bỏ ăn liên tục, hãy theo dõi thêm hoặc liên hệ bác sĩ.',
+          type: ToastType.warning,
+        );
+      } else {
+        MoewToast.show(
+          context,
+          message: res.data?['message'] ?? '✅ Đã xác nhận!',
+          type: ToastType.success,
+        );
+      }
+
+      _fetch(showLoading: false);
     } else {
       MoewToast.show(context, message: res.error ?? 'Lỗi', type: ToastType.error);
     }
@@ -91,37 +161,251 @@ class _FeedingTodayScreenState extends State<FeedingTodayScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: MoewColors.background,
-      appBar: const AppHeader(title: 'Cho ăn hôm nay'),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator(color: MoewColors.primary))
-          : _data == null
-              ? const EmptyState(icon: Icons.restaurant, color: MoewColors.primary, message: 'Chưa có lịch cho ăn.\nTạo khẩu phần trước nhé!')
-              : ListView(padding: const EdgeInsets.all(MoewSpacing.md), children: [
-                  // ── Streak + Summary ──
-                  _buildHeader(),
-                  const SizedBox(height: MoewSpacing.md),
+    if (_loading) {
+      return Scaffold(
+        backgroundColor: MoewColors.background,
+        appBar: const AppHeader(title: 'Cho ăn hôm nay', showBack: false),
+        body: Center(child: CircularProgressIndicator(color: MoewColors.primary)),
+      );
+    }
 
-                  // ── Timeline ──
-                  ...(_data!['timeline'] as List? ?? []).map<Widget>((m) => _buildMealCard(m as Map<String, dynamic>)),
+    final timeline = _data?['timeline'] as List? ?? [];
 
-                  const SizedBox(height: MoewSpacing.lg),
+    if (_data == null || timeline.isEmpty) {
+      return Scaffold(
+        backgroundColor: MoewColors.background,
+        appBar: const AppHeader(title: 'Cho ăn hôm nay', showBack: false),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 100, height: 100,
+                  decoration: BoxDecoration(
+                    color: MoewColors.primary.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.restaurant_menu, size: 48, color: MoewColors.primary),
+                ),
+                SizedBox(height: 24),
+                Text(
+                  'Chưa có lịch ăn nào!',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: MoewColors.textMain),
+                ),
+                SizedBox(height: 12),
+                Text(
+                  'Bạn cần thêm thú cưng và thiết lập\n khẩu phần ăn trước nhé 🐾',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 14, color: MoewColors.textSub, height: 1.5),
+                ),
+                SizedBox(height: 32),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () => Navigator.pushNamed(context, '/add-pet'),
+                    icon: Icon(Icons.add_circle_outline, size: 20),
+                    label: Text('Thêm thú cưng ngay'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: MoewColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(MoewRadius.md)),
+                      elevation: 0,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => Navigator.pushNamed(context, '/feeding-plan'),
+                    icon: Icon(Icons.calendar_today, size: 20),
+                    label: Text('Thiết lập lịch ăn'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: MoewColors.primary,
+                      side: BorderSide(color: MoewColors.primary),
+                      padding: EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(MoewRadius.md)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
-                  // ── Quick links ──
-                  Row(children: [
-                    Expanded(child: _linkBtn('Kho thức ăn', Icons.inventory_2, '/food-products')),
-                    const SizedBox(width: 10),
-                    Expanded(child: _linkBtn('Khẩu phần', Icons.pie_chart, '/feeding-plan')),
-                  ]),
-                  const SizedBox(height: 8),
-                  Row(children: [
-                    Expanded(child: _linkBtn('Thống kê', Icons.bar_chart, '/nutrition-dashboard')),
-                    const SizedBox(width: 10),
-                    Expanded(child: _linkBtn('Chuyển đổi', Icons.swap_horiz, '/food-transition')),
-                  ]),
-                  const SizedBox(height: MoewSpacing.lg),
-                ]),
+    List<Map<String, dynamic>> morning = [];
+    List<Map<String, dynamic>> noon = [];
+    List<Map<String, dynamic>> evening = [];
+
+    for (var m in timeline) {
+      final meal = m as Map<String, dynamic>;
+      final timeStr = meal['time']?.toString() ?? '';
+      int hr = 12; // Default if parse fails
+      if (timeStr.isNotEmpty) {
+        final parts = timeStr.split(':');
+        if (parts.isNotEmpty) hr = int.tryParse(parts[0]) ?? 12;
+      }
+      if (hr < 12) {
+        morning.add(meal);
+      } else if (hr < 17) {
+        noon.add(meal);
+      } else {
+        evening.add(meal);
+      }
+    }
+
+    int hr = DateTime.now().hour;
+    int initialIndex = hr < 12 ? 0 : (hr < 17 ? 1 : 2);
+
+    return DefaultTabController(
+      length: 3,
+      initialIndex: initialIndex,
+      child: Scaffold(
+        backgroundColor: MoewColors.background,
+        appBar: const AppHeader(title: 'Cho ăn hôm nay', showBack: false),
+        body: Column(
+          children: [
+          Padding(
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: _buildHeader(),
+          ),
+
+          // Custom TabBar
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: MoewColors.white,
+              borderRadius: BorderRadius.circular(MoewRadius.lg),
+              boxShadow: MoewShadows.soft,
+            ),
+            child: TabBar(
+              indicatorSize: TabBarIndicatorSize.tab,
+              indicator: BoxDecoration(
+                color: MoewColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(MoewRadius.lg),
+              ),
+              labelPadding: EdgeInsets.zero,
+              labelColor: MoewColors.primary,
+              unselectedLabelColor: MoewColors.textSub,
+              dividerColor: Colors.transparent,
+              tabs: [
+                _buildTab('Buổi sáng', morning),
+                _buildTab('Buổi trưa', noon),
+                _buildTab('Buổi tối', evening),
+              ],
+            ),
+          ),
+
+          // Tab Views
+          Expanded(
+            child: TabBarView(
+              children: [
+                _buildMealList(morning, 'Buổi sáng (00:00 - 11:59)', '⛅'),
+                _buildMealList(noon, 'Buổi trưa (12:00 - 16:59)', '☀️'),
+                _buildMealList(evening, 'Buổi tối (17:00 - 23:59)', '🌙'),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+  Widget _buildTab(String title, List<Map<String,dynamic>> meals) {
+    bool hasUnfed = meals.any((m) => m['isFed'] != true);
+    bool allFed = meals.isNotEmpty && meals.every((m) => m['isFed'] == true);
+    
+    return Tab(
+      height: 48,
+      child: Center(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Flexible(
+              child: Text(
+                title, 
+                style: TextStyle(
+                  fontSize: 13, 
+                  fontWeight: FontWeight.w700,
+                  color: allFed ? MoewColors.success : null,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            if (hasUnfed) ...[
+              SizedBox(width: 4),
+              Container(width: 6, height: 6, decoration: BoxDecoration(color: MoewColors.danger, shape: BoxShape.circle)),
+            ],
+            if (allFed) ...[
+              SizedBox(width: 4),
+              Icon(Icons.check_circle, size: 14, color: MoewColors.success),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMealList(List<Map<String,dynamic>> meals, String title, String iconStr) {
+    if (meals.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(iconStr, style: TextStyle(fontSize: 48)),
+            SizedBox(height: 12),
+            Text('Trống lịch ăn $title', style: TextStyle(color: MoewColors.textSub, fontSize: 13)),
+          ],
+        )
+      );
+    }
+    return ListView.builder(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      itemCount: meals.length + 2, // 1 cho Header, 1 cho Quick Links ghim ở đáy
+      itemBuilder: (ctx, i) {
+        if (i == 0) {
+           return Padding(
+             padding: EdgeInsets.only(bottom: 12, left: 4),
+             child: Row(
+               children: [
+                 Text(iconStr, style: TextStyle(fontSize: 16)),
+                 SizedBox(width: 6),
+                 Expanded(
+                   child: Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: MoewColors.textMain), overflow: TextOverflow.ellipsis),
+                 ),
+               ],
+             )
+           );
+        }
+        if (i == meals.length + 1) {
+           return Padding(
+             padding: EdgeInsets.only(top: 16, bottom: 100), // <--- Spacer 100px nhường chỗ cho Tab Bar
+             child: Column(
+               children: [
+                 Row(children: [
+                   Expanded(child: _linkBtn('Kho thức ăn', Icons.inventory_2, '/food-products')),
+                   SizedBox(width: 10),
+                   Expanded(child: _linkBtn('Khẩu phần', Icons.pie_chart, '/feeding-plan')),
+                 ]),
+                 SizedBox(height: 8),
+                 Row(children: [
+                   Expanded(child: _linkBtn('Thống kê', Icons.bar_chart, '/nutrition-dashboard')),
+                   SizedBox(width: 10),
+                   Expanded(child: _linkBtn('Chuyển đổi', Icons.swap_horiz, '/food-transition')),
+                 ]),
+               ],
+             ),
+           );
+        }
+        return _buildMealCard(meals[i - 1]);
+      },
     );
   }
 
@@ -131,7 +415,7 @@ class _FeedingTodayScreenState extends State<FeedingTodayScreen> {
     final progress = total > 0 ? fed / total : 0.0;
 
     return Container(
-      padding: const EdgeInsets.all(MoewSpacing.md),
+      padding: EdgeInsets.all(MoewSpacing.md),
       decoration: BoxDecoration(
         gradient: LinearGradient(colors: [MoewColors.primary.withValues(alpha: 0.08), MoewColors.success.withValues(alpha: 0.08)]),
         borderRadius: BorderRadius.circular(MoewRadius.lg),
@@ -140,18 +424,18 @@ class _FeedingTodayScreenState extends State<FeedingTodayScreen> {
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           // Streak
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(color: MoewColors.warning.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(MoewRadius.full)),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
-              const Text('🔥', style: TextStyle(fontSize: 18)),
-              const SizedBox(width: 4),
-              Text('$_streak ngày', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: MoewColors.warning)),
+              Text('🔥', style: TextStyle(fontSize: 18)),
+              SizedBox(width: 4),
+              Text('$_streak ngày', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: MoewColors.warning)),
             ]),
           ),
           // Progress
-          Text('$fed / $total bữa', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: MoewColors.textMain)),
+          Text('$fed / $total bữa', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: MoewColors.textMain)),
         ]),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         // Progress bar
         ClipRRect(
           borderRadius: BorderRadius.circular(6),
@@ -163,10 +447,12 @@ class _FeedingTodayScreenState extends State<FeedingTodayScreen> {
           ),
         ),
         if (progress >= 1.0)
-          const Padding(padding: EdgeInsets.only(top: 8), child: Text('Tuyệt vời! Đã cho ăn đủ!', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: MoewColors.success))),
+          Padding(padding: EdgeInsets.only(top: 8), child: Text('Tuyệt vời! Đã cho ăn đủ!', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: MoewColors.success))),
       ]),
     );
   }
+
+
 
   Widget _buildMealCard(Map<String, dynamic> meal) {
     final isFed = meal['isFed'] == true;
@@ -175,17 +461,24 @@ class _FeedingTodayScreenState extends State<FeedingTodayScreen> {
     final petName = meal['petName']?.toString() ?? '';
     final foodName = meal['foodName']?.toString() ?? '';
     final grams = meal['portionGrams'] ?? 0;
+    final eatStatus = isFed ? meal['eatStatus']?.toString() : null;
+
+    // Border color theo eatStatus
+    Color borderColor = isFed ? MoewColors.success : MoewColors.warning;
+    if (isFed && eatStatus != null) {
+      borderColor = EatStatus.fromValue(eatStatus).color;
+    }
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
         color: MoewColors.white,
         borderRadius: BorderRadius.circular(MoewRadius.lg),
         boxShadow: MoewShadows.soft,
-        border: Border(left: BorderSide(color: isFed ? MoewColors.success : MoewColors.warning, width: 3)),
+        border: Border(left: BorderSide(color: borderColor, width: 3)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: EdgeInsets.all(14),
         child: Row(children: [
           // Time badge
           Container(
@@ -199,33 +492,44 @@ class _FeedingTodayScreenState extends State<FeedingTodayScreen> {
               Text(label, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: isFed ? MoewColors.success : MoewColors.textSub)),
             ]),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
 
           // Info
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Icon(Icons.pets, size: 14, color: isFed ? MoewColors.success : MoewColors.textMain),
-              const SizedBox(width: 4),
-              Text(petName, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: isFed ? MoewColors.success : MoewColors.textMain)),
+              SizedBox(width: 4),
+              Expanded(
+                child: Text(petName, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: isFed ? MoewColors.success : MoewColors.textMain), overflow: TextOverflow.ellipsis),
+              ),
             ]),
-            const SizedBox(height: 2),
-            Text('${grams}g $foodName', style: const TextStyle(fontSize: 12, color: MoewColors.textSub)),
+            SizedBox(height: 2),
+            Text('${grams}g $foodName', style: TextStyle(fontSize: 12, color: MoewColors.textSub)),
             if (isFed && meal['feedingNote'] != null)
-              Padding(padding: const EdgeInsets.only(top: 2), child: Text('"${meal['feedingNote']}"', style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: MoewColors.textSub))),
+              Padding(padding: EdgeInsets.only(top: 2), child: Text('"${meal['feedingNote']}"', style: TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: MoewColors.textSub))),
           ])),
 
           // Status / Action
           if (isFed)
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: MoewColors.success.withValues(alpha: 0.1), shape: BoxShape.circle),
-              child: const Icon(Icons.check, size: 20, color: MoewColors.success),
-            )
+            Column(mainAxisSize: MainAxisSize.min, children: [
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: borderColor.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.check, size: 20, color: borderColor),
+              ),
+              if (eatStatus != null) ...[  
+                SizedBox(height: 4),
+                EatStatusBadge(eatStatus: eatStatus),
+              ],
+            ])
           else
             ElevatedButton(
               onPressed: () => _confirmMeal(meal),
-              style: ElevatedButton.styleFrom(backgroundColor: MoewColors.primary, padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8), minimumSize: Size.zero),
-              child: const Text('Cho ăn', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+              style: ElevatedButton.styleFrom(backgroundColor: MoewColors.primary, padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8), minimumSize: Size.zero),
+              child: Text('Cho ăn', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
             ),
         ]),
       ),
@@ -236,12 +540,14 @@ class _FeedingTodayScreenState extends State<FeedingTodayScreen> {
     return GestureDetector(
       onTap: () => Navigator.pushNamed(context, route),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
+        padding: EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(color: MoewColors.white, borderRadius: BorderRadius.circular(MoewRadius.md), boxShadow: MoewShadows.soft),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           Icon(icon, size: 18, color: MoewColors.primary),
-          const SizedBox(width: 6),
-          Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: MoewColors.textMain)),
+          SizedBox(width: 6),
+          Flexible(
+            child: Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: MoewColors.textMain), overflow: TextOverflow.ellipsis),
+          ),
         ]),
       ),
     );

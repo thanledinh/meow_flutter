@@ -70,14 +70,14 @@ class _FeedingPlanScreenState extends State<FeedingPlanScreen> {
         return Padding(
           padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(ctx).viewInsets.bottom + 20),
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text('AI tạo khẩu phần', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-            const SizedBox(height: 4),
-            const Text('Chọn thức ăn và thú cưng', style: TextStyle(fontSize: 12, color: MoewColors.textSub)),
-            const SizedBox(height: 16),
+            Text('AI tạo khẩu phần', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+            SizedBox(height: 4),
+            Text('Chọn thức ăn và thú cưng', style: TextStyle(fontSize: 12, color: MoewColors.textSub)),
+            SizedBox(height: 16),
 
             // Product selector
-            const Text('Sản phẩm', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: MoewColors.textSub)),
-            const SizedBox(height: 6),
+            Text('Sản phẩm', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: MoewColors.textSub)),
+            SizedBox(height: 6),
             SizedBox(
               height: 60,
               child: ListView(scrollDirection: Axis.horizontal, children: products.map<Widget>((p) {
@@ -85,8 +85,8 @@ class _FeedingPlanScreenState extends State<FeedingPlanScreen> {
                 return GestureDetector(
                   onTap: () => setBS(() => selectedProduct = p['id']),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    margin: const EdgeInsets.only(right: 8),
+                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    margin: EdgeInsets.only(right: 8),
                     decoration: BoxDecoration(
                       color: active ? MoewColors.primary.withValues(alpha: 0.1) : MoewColors.white,
                       borderRadius: BorderRadius.circular(MoewRadius.md),
@@ -100,17 +100,21 @@ class _FeedingPlanScreenState extends State<FeedingPlanScreen> {
                 );
               }).toList()),
             ),
-            const SizedBox(height: 14),
+            SizedBox(height: 14),
 
             // Pet multi-select
-            const Text('Chọn bé (nhiều bé)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: MoewColors.textSub)),
-            const SizedBox(height: 6),
+            Text('Chọn bé (nhiều bé)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: MoewColors.textSub)),
+            SizedBox(height: 6),
             Wrap(spacing: 8, runSpacing: 8, children: pets.map<Widget>((p) {
               final active = selectedPets.contains(p['id']);
               return GestureDetector(
-                onTap: () => setBS(() { if (active) selectedPets.remove(p['id']); else selectedPets.add(p['id']); }),
+                onTap: () => setBS(() { if (active) {
+                  selectedPets.remove(p['id']);
+                } else {
+                  selectedPets.add(p['id']);
+                } }),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: active ? MoewColors.success.withValues(alpha: 0.1) : MoewColors.white,
                     borderRadius: BorderRadius.circular(MoewRadius.full),
@@ -118,24 +122,24 @@ class _FeedingPlanScreenState extends State<FeedingPlanScreen> {
                   ),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
                     Icon(active ? Icons.check_circle : Icons.pets, size: 14, color: active ? MoewColors.success : MoewColors.textSub),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Text(p['name'] ?? '', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: active ? MoewColors.success : MoewColors.textSub)),
                   ]),
                 ),
               );
             }).toList()),
-            const SizedBox(height: 14),
+            SizedBox(height: 14),
 
             // Meals per day
             Row(children: [
-              const Text('Số bữa/ngày: ', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+              Text('Số bữa/ngày: ', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
               ...List.generate(4, (i) {
                 final n = i + 1;
                 return GestureDetector(
                   onTap: () => setBS(() => mealsPerDay = n),
                   child: Container(
                     width: 36, height: 36,
-                    margin: const EdgeInsets.only(left: 8),
+                    margin: EdgeInsets.only(left: 8),
                     decoration: BoxDecoration(
                       color: mealsPerDay == n ? MoewColors.primary : MoewColors.surface,
                       borderRadius: BorderRadius.circular(MoewRadius.sm),
@@ -145,11 +149,11 @@ class _FeedingPlanScreenState extends State<FeedingPlanScreen> {
                 );
               }),
             ]),
-            const SizedBox(height: 14),
+            SizedBox(height: 14),
 
             // Activity level
-            const Text('Mức hoạt động', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: MoewColors.textSub)),
-            const SizedBox(height: 6),
+            Text('Mức hoạt động', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: MoewColors.textSub)),
+            SizedBox(height: 6),
             SizedBox(
               height: 56,
               child: ListView(scrollDirection: Axis.horizontal, children: activityOptions.map<Widget>((opt) {
@@ -157,8 +161,8 @@ class _FeedingPlanScreenState extends State<FeedingPlanScreen> {
                 return GestureDetector(
                   onTap: () => setBS(() => activityLevel = opt['value']!),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    margin: const EdgeInsets.only(right: 8),
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    margin: EdgeInsets.only(right: 8),
                     decoration: BoxDecoration(
                       color: active ? MoewColors.accent.withValues(alpha: 0.1) : MoewColors.white,
                       borderRadius: BorderRadius.circular(MoewRadius.md),
@@ -172,7 +176,7 @@ class _FeedingPlanScreenState extends State<FeedingPlanScreen> {
                 );
               }).toList()),
             ),
-            const SizedBox(height: 18),
+            SizedBox(height: 18),
 
             SizedBox(
               width: double.infinity,
@@ -186,7 +190,7 @@ class _FeedingPlanScreenState extends State<FeedingPlanScreen> {
                     'mealsPerDay': mealsPerDay,
                     'activityLevel': activityLevel,
                   });
-                  if (!mounted) return;
+                  if (!mounted || !ctx.mounted) return;
                   setBS(() => generating = false);
                   if (res.success) {
                     Navigator.pop(ctx);
@@ -196,9 +200,9 @@ class _FeedingPlanScreenState extends State<FeedingPlanScreen> {
                     MoewToast.show(ctx, message: res.error ?? 'Lỗi', type: ToastType.error);
                   }
                 },
-                icon: generating ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Icon(Icons.auto_awesome, size: 18, color: Colors.white),
-                label: Text(generating ? 'AI đang tính...' : 'Tạo khẩu phần', style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
-                style: ElevatedButton.styleFrom(backgroundColor: MoewColors.success, padding: const EdgeInsets.symmetric(vertical: 14)),
+                icon: generating ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Icon(Icons.auto_awesome, size: 18, color: Colors.white),
+                label: Text(generating ? 'AI đang tính...' : 'Tạo khẩu phần', style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
+                style: ElevatedButton.styleFrom(backgroundColor: MoewColors.success, padding: EdgeInsets.symmetric(vertical: 14)),
               ),
             ),
           ]),
@@ -232,26 +236,26 @@ class _FeedingPlanScreenState extends State<FeedingPlanScreen> {
         padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(ctx).viewInsets.bottom + 20),
         child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            const Icon(Icons.pets, size: 18, color: MoewColors.primary),
-            const SizedBox(width: 6),
-            Text('Chỉnh khẩu phần $petName', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-            const Spacer(),
+            Icon(Icons.pets, size: 18, color: MoewColors.primary),
+            SizedBox(width: 6),
+            Text('Chỉnh khẩu phần $petName', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+            Spacer(),
             // Active toggle
             Row(children: [
               Text(isActive ? 'Đang bật' : 'Tạm dừng', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: isActive ? MoewColors.success : MoewColors.textSub)),
-              const SizedBox(width: 4),
+              SizedBox(width: 4),
               Switch(
                 value: isActive,
                 onChanged: (v) => setBS(() => isActive = v),
-                activeColor: MoewColors.success,
+                activeThumbColor: MoewColors.success,
               ),
             ]),
           ]),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
 
           // Activity level
-          const Text('MỨC HOẠT ĐỘNG', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: MoewColors.textSub, letterSpacing: 0.5)),
-          const SizedBox(height: 6),
+          Text('MỨC HOẠT ĐỘNG', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: MoewColors.textSub, letterSpacing: 0.5)),
+          SizedBox(height: 6),
           SizedBox(
             height: 48,
             child: ListView(scrollDirection: Axis.horizontal, children: _activityOptions.map<Widget>((opt) {
@@ -259,8 +263,8 @@ class _FeedingPlanScreenState extends State<FeedingPlanScreen> {
               return GestureDetector(
                 onTap: () => setBS(() => activityLevel = opt['value']!),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  margin: const EdgeInsets.only(right: 8),
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  margin: EdgeInsets.only(right: 8),
                   decoration: BoxDecoration(
                     color: active ? MoewColors.accent.withValues(alpha: 0.1) : MoewColors.surface,
                     borderRadius: BorderRadius.circular(MoewRadius.md),
@@ -274,18 +278,18 @@ class _FeedingPlanScreenState extends State<FeedingPlanScreen> {
               );
             }).toList()),
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
 
           // Meals per day
           Row(children: [
-            const Text('SỐ BỮA/NGÀY: ', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: MoewColors.textSub)),
+            Text('SỐ BỮA/NGÀY: ', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: MoewColors.textSub)),
             ...List.generate(4, (i) {
               final n = i + 1;
               return GestureDetector(
                 onTap: () => setBS(() => mealsPerDay = n),
                 child: Container(
                   width: 34, height: 34,
-                  margin: const EdgeInsets.only(left: 6),
+                  margin: EdgeInsets.only(left: 6),
                   decoration: BoxDecoration(
                     color: mealsPerDay == n ? MoewColors.primary : MoewColors.surface,
                     borderRadius: BorderRadius.circular(MoewRadius.sm),
@@ -295,7 +299,7 @@ class _FeedingPlanScreenState extends State<FeedingPlanScreen> {
               );
             }),
           ]),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
 
           // Daily grams override
           TextField(
@@ -303,7 +307,7 @@ class _FeedingPlanScreenState extends State<FeedingPlanScreen> {
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(labelText: 'Gram/ngày (để trống = auto)', suffixText: 'g', prefixIcon: Icon(Icons.scale, size: 18)),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
 
           // Health note
           TextField(
@@ -311,7 +315,7 @@ class _FeedingPlanScreenState extends State<FeedingPlanScreen> {
             maxLines: 2,
             decoration: const InputDecoration(labelText: 'Ghi chú sức khỏe (bệnh, dị ứng...)', prefixIcon: Icon(Icons.medical_services, size: 18)),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
 
           SizedBox(width: double.infinity, child: ElevatedButton(
             onPressed: saving ? null : () async {
@@ -325,7 +329,7 @@ class _FeedingPlanScreenState extends State<FeedingPlanScreen> {
               if (noteCtrl.text.trim().isNotEmpty) body['healthNote'] = noteCtrl.text.trim();
 
               final res = await FeedingApi.updatePlan(plan['id'], body);
-              if (!mounted) return;
+              if (!mounted || !ctx.mounted) return;
               setBS(() => saving = false);
               if (res.success) {
                 Navigator.pop(ctx);
@@ -343,10 +347,10 @@ class _FeedingPlanScreenState extends State<FeedingPlanScreen> {
                 MoewToast.show(ctx, message: res.error ?? 'Lỗi', type: ToastType.error);
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: MoewColors.primary, padding: const EdgeInsets.symmetric(vertical: 14)),
+            style: ElevatedButton.styleFrom(backgroundColor: MoewColors.primary, padding: EdgeInsets.symmetric(vertical: 14)),
             child: saving
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                : const Text('Lưu thay đổi', style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
+                ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                : Text('Lưu thay đổi', style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
           )),
         ]),
       ))),
@@ -357,18 +361,18 @@ class _FeedingPlanScreenState extends State<FeedingPlanScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MoewColors.background,
-      appBar: const AppHeader(title: 'Khẩu phần ăn'),
+      appBar: AppHeader(title: 'Khẩu phần ăn'),
       floatingActionButton: FloatingActionButton(
         onPressed: _showGenerate,
         backgroundColor: MoewColors.success,
-        child: const Icon(Icons.auto_awesome, color: Colors.white),
+        child: Icon(Icons.auto_awesome, color: Colors.white),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: MoewColors.primary))
+          ? Center(child: CircularProgressIndicator(color: MoewColors.primary))
           : _plans.isEmpty
-              ? const EmptyState(icon: Icons.pie_chart, color: MoewColors.primary, message: 'Chưa có khẩu phần\nBấm ✨ để AI tạo')
+              ? EmptyState(icon: Icons.pie_chart, color: MoewColors.primary, message: 'Chưa có khẩu phần\nBấm ✨ để AI tạo')
               : ListView.builder(
-                  padding: const EdgeInsets.all(MoewSpacing.md),
+                  padding: EdgeInsets.all(MoewSpacing.md),
                   itemCount: _plans.length,
                   itemBuilder: (_, i) => _buildPlanCard(_plans[i] as Map<String, dynamic>),
                 ),
@@ -384,7 +388,7 @@ class _FeedingPlanScreenState extends State<FeedingPlanScreen> {
     return GestureDetector(
       onTap: () => _showEditPlan(plan),
       child: Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: MoewColors.white,
         borderRadius: BorderRadius.circular(MoewRadius.lg),
@@ -392,42 +396,42 @@ class _FeedingPlanScreenState extends State<FeedingPlanScreen> {
         border: Border(left: BorderSide(color: isActive ? MoewColors.success : MoewColors.textSub, width: 3)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(MoewSpacing.md),
+        padding: EdgeInsets.all(MoewSpacing.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           // Header
           Row(children: [
             Icon(Icons.pets, size: 18, color: isActive ? MoewColors.primary : MoewColors.textSub),
-            const SizedBox(width: 6),
+            SizedBox(width: 6),
             Expanded(child: Text(pet['name']?.toString() ?? 'Pet', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: isActive ? MoewColors.textMain : MoewColors.textSub))),
             if (!isActive) Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(color: MoewColors.textSub.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(MoewRadius.full)),
-              child: const Text('Tạm dừng', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: MoewColors.textSub)),
+              child: Text('Tạm dừng', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: MoewColors.textSub)),
             ),
           ]),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
 
           // Stats
           Row(children: [
             _statChip('${plan['dailyGrams'] ?? 0}g/ngày', Icons.scale),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             _statChip('${plan['dailyCalories'] ?? 0} kcal', Icons.local_fire_department),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             _statChip('${plan['mealsPerDay'] ?? 0} bữa', Icons.restaurant),
           ]),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
 
           // Food product
-          Text('${food['name'] ?? ''} (${food['remainingGrams'] ?? 0}g còn)', style: const TextStyle(fontSize: 12, color: MoewColors.textSub)),
+          Text('${food['name'] ?? ''} (${food['remainingGrams'] ?? 0}g còn)', style: TextStyle(fontSize: 12, color: MoewColors.textSub)),
 
           // Schedules
           if (schedules.isNotEmpty) ...[
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             Row(children: schedules.map<Widget>((s) {
               final hasFed = (s['feedingLogs'] as List?)?.isNotEmpty ?? false;
               return Expanded(child: Container(
-                margin: const EdgeInsets.only(right: 6),
-                padding: const EdgeInsets.symmetric(vertical: 6),
+                margin: EdgeInsets.only(right: 6),
+                padding: EdgeInsets.symmetric(vertical: 6),
                 decoration: BoxDecoration(
                   color: hasFed ? MoewColors.success.withValues(alpha: 0.1) : MoewColors.surface,
                   borderRadius: BorderRadius.circular(MoewRadius.sm),
@@ -444,11 +448,11 @@ class _FeedingPlanScreenState extends State<FeedingPlanScreen> {
 
           // AI recommendation
           if (plan['aiRecommendation'] != null) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Icon(Icons.auto_awesome, size: 12, color: MoewColors.accent),
-              const SizedBox(width: 4),
-              Expanded(child: Text(plan['aiRecommendation'].toString(), style: const TextStyle(fontSize: 11, color: MoewColors.textSub, fontStyle: FontStyle.italic), maxLines: 2, overflow: TextOverflow.ellipsis)),
+              Icon(Icons.auto_awesome, size: 12, color: MoewColors.accent),
+              SizedBox(width: 4),
+              Expanded(child: Text(plan['aiRecommendation'].toString(), style: TextStyle(fontSize: 11, color: MoewColors.textSub, fontStyle: FontStyle.italic), maxLines: 2, overflow: TextOverflow.ellipsis)),
             ]),
           ],
         ]),
@@ -458,12 +462,12 @@ class _FeedingPlanScreenState extends State<FeedingPlanScreen> {
 
   Widget _statChip(String label, IconData icon) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(color: MoewColors.surface, borderRadius: BorderRadius.circular(MoewRadius.full)),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 12, color: MoewColors.primary),
-        const SizedBox(width: 3),
-        Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+        SizedBox(width: 3),
+        Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
       ]),
     );
   }

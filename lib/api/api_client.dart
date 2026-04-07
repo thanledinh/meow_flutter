@@ -9,9 +9,15 @@ import 'local_cache.dart';
 // CẤU HÌNH
 // ═══════════════════════════════════════════
 class ApiConfig {
-  static const String baseUrl = 'http://171.248.184.99:3000/api';
+  static const String baseUrl = 'https://api.moewcare.app/api';
   static const Duration timeout = Duration(seconds: 15);
   static const Duration uploadTimeout = Duration(seconds: 30);
+
+  static String parseImageUrl(String rawUrl) {
+    if (rawUrl.isEmpty) return '';
+    if (rawUrl.startsWith('http')) return rawUrl;
+    return 'https://api.moewcare.app${rawUrl.startsWith('/') ? '' : '/'}$rawUrl';
+  }
 }
 
 // ═══════════════════════════════════════════
@@ -38,11 +44,15 @@ class ApiResponse {
 // ═══════════════════════════════════════════
 class TokenManager {
   static const String _tokenKey = '@moew_auth_token';
+  static const String _refreshTokenKey = '@moew_refresh_token';
   static const String _userKey = '@moew_auth_user';
 
-  static Future<void> save(String token, Map<String, dynamic>? user) async {
+  static Future<void> save(String token, Map<String, dynamic>? user, {String? refreshToken}) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_tokenKey, token);
+    if (refreshToken != null) {
+      await prefs.setString(_refreshTokenKey, refreshToken);
+    }
     if (user != null) {
       await prefs.setString(_userKey, jsonEncode(user));
     }
@@ -51,6 +61,11 @@ class TokenManager {
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_tokenKey);
+  }
+
+  static Future<String?> getRefreshToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_refreshTokenKey);
   }
 
   static Future<Map<String, dynamic>?> getUser() async {
@@ -65,12 +80,47 @@ class TokenManager {
   static Future<void> clear() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);
+    await prefs.remove(_refreshTokenKey);
     await prefs.remove(_userKey);
   }
 
   static Future<bool> isLoggedIn() async {
     final token = await getToken();
     return token != null && token.isNotEmpty;
+  }
+
+  /// Refresh Firebase ID token using refresh token
+  /// Calls Google's securetoken API directly
+  static Future<bool> refreshIdToken() async {
+    final refreshToken = await getRefreshToken();
+    if (refreshToken == null) return false;
+
+    try {
+      // Firebase API key — same one used in google-services.json
+      const apiKey = 'AIzaSyB-BCk44eHZESfWYy9qeXdhn1TxdSP5Fxs';
+
+      final response = await http.post(
+        Uri.parse('https://securetoken.googleapis.com/v1/token?key=$apiKey'),
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: 'grant_type=refresh_token&refresh_token=$refreshToken',
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final newToken = data['id_token'] as String?;
+        final newRefresh = data['refresh_token'] as String?;
+        if (newToken != null) {
+          await save(newToken, null, refreshToken: newRefresh);
+          debugPrint('Token refreshed successfully');
+          return true;
+        }
+      }
+      debugPrint('Token refresh failed: ${response.statusCode}');
+      return false;
+    } catch (e) {
+      debugPrint('Token refresh error: $e');
+      return false;
+    }
   }
 }
 
@@ -98,11 +148,35 @@ class ApiClient {
     if (_isHandling401) return;
     _isHandling401 = true;
     TokenManager.clear();
-    LocalCache.clear(); // Clear offline cache on logout
+    LocalCache.clear();
     _onUnauthorized?.call();
     Future.delayed(const Duration(seconds: 3), () {
       _isHandling401 = false;
     });
+  }
+
+  /// Try to refresh token and retry the request.
+  /// Returns null if refresh failed (will fallback to 401 logout).
+  Future<ApiResponse?> _tryRefreshAndRetry(
+    String endpoint, {
+    String method = 'GET',
+    Map<String, dynamic>? body,
+    Map<String, String>? headers,
+    bool auth = true,
+    Duration? timeout,
+  }) async {
+    final refreshed = await TokenManager.refreshIdToken();
+    if (!refreshed) return null;
+    // Retry with new token
+    return request(
+      endpoint,
+      method: method,
+      body: body,
+      headers: headers,
+      auth: auth,
+      timeout: timeout,
+      isRetry: true,
+    );
   }
 
   // ─── Core Request ──────────────────────
@@ -113,6 +187,7 @@ class ApiClient {
     Map<String, String>? headers,
     bool auth = true,
     Duration? timeout,
+    bool isRetry = false,
   }) async {
     final url = Uri.parse('${ApiConfig.baseUrl}$endpoint');
     final requestHeaders = <String, String>{
@@ -195,7 +270,15 @@ class ApiClient {
         );
       }
 
-      if (response.statusCode == 401) {
+      if (response.statusCode == 401 && !isRetry) {
+        // Try auto-refresh before logout
+        final retryResult = await _tryRefreshAndRetry(
+          endpoint, method: method, body: body,
+          headers: headers, auth: auth, timeout: timeout,
+        );
+        if (retryResult != null) return retryResult;
+        _handle401();
+      } else if (response.statusCode == 401) {
         _handle401();
       }
 

@@ -45,10 +45,10 @@ class MoewLoading extends StatelessWidget {
             child: Lottie.asset('assets/animations/loading_cat.json'),
           ),
           if (message != null) ...[
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Text(
               message!,
-              style: const TextStyle(fontSize: 13, color: Color(0xFF8E8E93)),
+              style: TextStyle(fontSize: 13, color: Color(0xFF8E8E93)),
             ),
           ],
         ],

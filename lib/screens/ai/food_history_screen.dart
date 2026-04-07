@@ -39,32 +39,32 @@ class _FoodHistoryScreenState extends State<FoodHistoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MoewColors.background,
-      appBar: const AppHeader(title: 'Lịch sử ăn uống'),
+      appBar: AppHeader(title: 'Lịch sử ăn uống'),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: MoewColors.primary))
+          ? Center(child: CircularProgressIndicator(color: MoewColors.primary))
           : _logs.isEmpty
-              ? const EmptyState(icon: Icons.restaurant_outlined, color: MoewColors.secondary, message: 'Chưa có lịch sử ăn')
+              ? EmptyState(icon: Icons.restaurant_outlined, color: MoewColors.secondary, message: 'Chưa có lịch sử ăn')
               : RefreshIndicator(onRefresh: _fetch, child: ListView.builder(
-                  padding: const EdgeInsets.all(MoewSpacing.lg),
+                  padding: EdgeInsets.all(MoewSpacing.lg),
                   itemCount: _logs.length,
                   itemBuilder: (ctx, i) {
                     final log = _logs[i] as Map<String, dynamic>;
                     return Container(
-                      margin: const EdgeInsets.only(bottom: MoewSpacing.sm),
-                      padding: const EdgeInsets.all(MoewSpacing.md),
+                      margin: EdgeInsets.only(bottom: MoewSpacing.sm),
+                      padding: EdgeInsets.all(MoewSpacing.md),
                       decoration: BoxDecoration(color: MoewColors.white, borderRadius: BorderRadius.circular(MoewRadius.lg), boxShadow: MoewShadows.card),
                       child: Row(children: [
-                        Container(width: 40, height: 40, decoration: BoxDecoration(color: MoewColors.tintAmber, borderRadius: BorderRadius.circular(MoewRadius.sm)), child: const Icon(Icons.restaurant, size: 20, color: MoewColors.secondary)),
-                        const SizedBox(width: 12),
+                        Container(width: 40, height: 40, decoration: BoxDecoration(color: MoewColors.tintAmber, borderRadius: BorderRadius.circular(MoewRadius.sm)), child: Icon(Icons.restaurant, size: 20, color: MoewColors.secondary)),
+                        SizedBox(width: 12),
                         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text(log['foodName'] ?? 'Bữa ăn', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: MoewColors.textMain)),
+                          Text(log['foodName'] ?? 'Bữa ăn', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: MoewColors.textMain)),
                           Row(children: [
-                            if (log['estimatedCalories'] != null) Text('${log['estimatedCalories']} kcal', style: const TextStyle(fontSize: 12, color: MoewColors.secondary, fontWeight: FontWeight.w600)),
+                            if (log['estimatedCalories'] != null) Text('${log['estimatedCalories']} kcal', style: TextStyle(fontSize: 12, color: MoewColors.secondary, fontWeight: FontWeight.w600)),
                             if (log['mealTime'] != null) ...[Text(' · ', style: MoewTextStyles.caption), Text(log['mealTime'], style: MoewTextStyles.caption)],
                           ]),
                         ])),
                         if (log['suitabilityScore'] != null) Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: (log['suitabilityScore'] as num) >= 7 ? MoewColors.tintGreen : (log['suitabilityScore'] as num) >= 5 ? MoewColors.tintAmber : MoewColors.tintRed,
                             borderRadius: BorderRadius.circular(MoewRadius.sm),

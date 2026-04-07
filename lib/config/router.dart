@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import '../screens/auth/welcome_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
 import '../screens/profile/profile_screen.dart';
@@ -26,6 +28,7 @@ import '../screens/sos/sos_history_screen.dart';
 import '../screens/map/guardian_map_screen.dart';
 import '../screens/wallet/wallet_screen.dart';
 import '../screens/notification/notification_screen.dart';
+import '../screens/notification/health_alerts_screen.dart';
 import '../screens/feeding/feeding_today_screen.dart';
 import '../screens/feeding/food_products_screen.dart';
 import '../screens/feeding/feeding_plan_screen.dart';
@@ -33,6 +36,9 @@ import '../screens/feeding/food_transition_screen.dart';
 import '../screens/feeding/nutrition_dashboard_screen.dart';
 import '../screens/ai/chat_sessions_screen.dart';
 import '../screens/settings/settings_screen.dart';
+import '../screens/post/feed_screen.dart';
+import '../screens/post/create_post_screen.dart';
+import '../screens/post/edit_post_screen.dart';
 import '../widgets/moew_not_found.dart';
 import '../widgets/main_shell.dart';
 
@@ -40,6 +46,8 @@ import '../widgets/main_shell.dart';
 Route<dynamic>? generateRoute(RouteSettings settings) {
   switch (settings.name) {
     // Auth
+    case '/welcome':
+      return _fade(const WelcomeScreen(), settings);
     case '/login':
       return _fade(const LoginScreen(), settings);
     case '/register':
@@ -57,7 +65,7 @@ Route<dynamic>? generateRoute(RouteSettings settings) {
     case '/profile':
       return _slide(const ProfileScreen(), settings);
     case '/public-profile':
-      return _slide(const Scaffold(backgroundColor: Color(0xFFF8F8FC), body: MoewNotFound(message: 'Tính năng đang phát triển')), settings);
+      return _slide(PublicProfileScreen(userId: settings.arguments), settings);
     case '/ekyc':
       return _slide(const EkycScreen(), settings);
 
@@ -77,13 +85,14 @@ Route<dynamic>? generateRoute(RouteSettings settings) {
     case '/medical':
       return _slide(MedicalScreen(petId: settings.arguments), settings);
     case '/add-medical':
-      final args = settings.arguments as Map<String, dynamic>;
+      final args = (settings.arguments as Map<String, dynamic>?) ?? {};
       return _slide(AddMedicalScreen(petId: args['petId'], type: args['type']), settings);
     case '/cost-breakdown':
-      final args = settings.arguments as Map<String, dynamic>;
+      final args = (settings.arguments as Map<String, dynamic>?) ?? {};
       return _slide(CostBreakdownScreen(petId: args['petId'], recordId: args['recordId'], type: args['type']), settings);
     case '/medical-detail':
-      return _slide(MedicalDetailScreen(record: settings.arguments as Map<String, dynamic>), settings);
+      final args = (settings.arguments as Map<String, dynamic>?) ?? {};
+      return _slide(MedicalDetailScreen(record: args), settings);
 
     // AI / Food
     case '/food-analysis':
@@ -109,7 +118,7 @@ Route<dynamic>? generateRoute(RouteSettings settings) {
     case '/clinic-detail':
       return _slide(ClinicDetailScreen(clinicId: settings.arguments), settings);
     case '/book-appointment':
-      final args = settings.arguments as Map<String, dynamic>;
+      final args = (settings.arguments as Map<String, dynamic>?) ?? {};
       return _slide(BookAppointmentScreen(clinicId: args['clinicId'], clinicName: args['clinicName']), settings);
     case '/booking-history':
       return _slide(const BookingHistoryScreen(), settings);
@@ -146,11 +155,23 @@ Route<dynamic>? generateRoute(RouteSettings settings) {
     // Notification
     case '/notifications':
       return _slide(const NotificationScreen(), settings);
+    case '/health-alerts':
+      final alertArgs = settings.arguments as Map<String, dynamic>?;
+      return _slide(HealthAlertsScreen(petId: alertArgs?['petId']), settings);
+
+    // Social Feed
+    case '/feed':
+      return _slide(const FeedScreen(), settings);
+    case '/create-post':
+      return _slide(const CreatePostScreen(), settings);
+    case '/edit-post':
+      final args = (settings.arguments as Map<String, dynamic>?) ?? {};
+      return _slide(EditPostScreen(post: args), settings);
 
     default:
       return _slide(Scaffold(
-        backgroundColor: const Color(0xFFF8F8FC),
-        appBar: AppBar(title: const Text('404'), centerTitle: true, backgroundColor: Colors.transparent, elevation: 0),
+        backgroundColor: Color(0xFFF8F8FC),
+        appBar: AppBar(title: Text('404'), centerTitle: true, backgroundColor: Colors.transparent, elevation: 0),
         body: MoewNotFound(message: 'Trang "${settings.name}" không tồn tại'),
       ), settings);
   }
@@ -166,17 +187,9 @@ PageRouteBuilder _fade(Widget page, RouteSettings settings) {
   );
 }
 
-PageRouteBuilder _slide(Widget page, RouteSettings settings) {
-  return PageRouteBuilder(
+Route<dynamic> _slide(Widget page, RouteSettings settings) {
+  return CupertinoPageRoute(
     settings: settings,
-    pageBuilder: (context, animation, secondaryAnimation) => page,
-    transitionsBuilder: (context, anim, secondaryAnimation, child) {
-      return SlideTransition(
-        position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero)
-            .animate(CurvedAnimation(parent: anim, curve: Curves.easeOutCubic)),
-        child: child,
-      );
-    },
-    transitionDuration: const Duration(milliseconds: 300),
+    builder: (context) => page,
   );
 }

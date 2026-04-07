@@ -39,8 +39,13 @@ class FeedingApi {
   static Future<ApiResponse> getToday() =>
       _client.get(Endpoints.feedingToday);
 
-  static Future<ApiResponse> confirmMeal(dynamic scheduleId, {String? note, int? portionAte}) {
-    final body = <String, dynamic>{};
+  static Future<ApiResponse> confirmMeal(
+    dynamic scheduleId, {
+    String eatStatus = 'ate_all',
+    String? note,
+    int? portionAte,
+  }) {
+    final body = <String, dynamic>{'eatStatus': eatStatus};
     if (note != null) body['note'] = note;
     if (portionAte != null) body['portionAte'] = portionAte;
     return _client.post(Endpoints.feedingConfirm(scheduleId), body);

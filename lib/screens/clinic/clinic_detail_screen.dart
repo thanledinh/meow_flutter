@@ -49,9 +49,9 @@ class _ClinicDetailScreenState extends State<ClinicDetailScreen> {
     return Scaffold(
       backgroundColor: MoewColors.background,
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: MoewColors.primary))
+          ? Center(child: CircularProgressIndicator(color: MoewColors.primary))
           : _clinic == null
-              ? const Scaffold(body: EmptyState(icon: Icons.medical_services_outlined, color: MoewColors.primary, message: 'Không tìm thấy'))
+              ? Scaffold(body: EmptyState(icon: Icons.medical_services_outlined, color: MoewColors.primary, message: 'Không tìm thấy'))
               : CustomScrollView(slivers: [
                   _buildSliverAppBar(),
                   SliverToBoxAdapter(child: _buildBody()),
@@ -67,9 +67,9 @@ class _ClinicDetailScreenState extends State<ClinicDetailScreen> {
       backgroundColor: MoewColors.primary,
       leading: IconButton(
         icon: Container(
-          padding: const EdgeInsets.all(6),
+          padding: EdgeInsets.all(6),
           decoration: BoxDecoration(color: Colors.black26, borderRadius: BorderRadius.circular(12)),
-          child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+          child: Icon(Icons.arrow_back, color: Colors.white, size: 20),
         ),
         onPressed: () => Navigator.pop(context),
       ),
@@ -78,10 +78,10 @@ class _ClinicDetailScreenState extends State<ClinicDetailScreen> {
           _clinic!['avatar'] != null
               ? CachedNetworkImage(imageUrl: _img(_clinic!['avatar']), fit: BoxFit.cover)
               : Container(
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     gradient: LinearGradient(colors: [MoewColors.primary, Color(0xFF1A6BA0)], begin: Alignment.topLeft, end: Alignment.bottomRight),
                   ),
-                  child: const Center(child: Icon(Icons.medical_services, size: 72, color: Colors.white24)),
+                  child: Center(child: Icon(Icons.medical_services, size: 72, color: Colors.white24)),
                 ),
           // Gradient overlay for readability
           Container(
@@ -95,24 +95,24 @@ class _ClinicDetailScreenState extends State<ClinicDetailScreen> {
           // Bottom info overlay
           Positioned(left: 20, right: 20, bottom: 16, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              Expanded(child: Text(_clinic!['name'] ?? '', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white))),
+              Expanded(child: Text(_clinic!['name'] ?? '', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white))),
               if (_clinic!['isVerified'] == true)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(color: MoewColors.success, borderRadius: BorderRadius.circular(6)),
-                  child: const Row(mainAxisSize: MainAxisSize.min, children: [
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
                     Icon(Icons.verified, size: 12, color: Colors.white),
                     SizedBox(width: 3),
                     Text('Xác minh', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white)),
                   ]),
                 ),
             ]),
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             Row(children: [
-              const Icon(Icons.star_rounded, size: 18, color: MoewColors.warning),
-              const SizedBox(width: 3),
-              Text('${_clinic!['rating'] ?? 0}', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white)),
-              if (_clinic!['reviewCount'] != null) Text(' (${_clinic!['reviewCount']})', style: const TextStyle(fontSize: 13, color: Colors.white70)),
+              Icon(Icons.star_rounded, size: 18, color: MoewColors.warning),
+              SizedBox(width: 3),
+              Text('${_clinic!['rating'] ?? 0}', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white)),
+              if (_clinic!['reviewCount'] != null) Text(' (${_clinic!['reviewCount']})', style: TextStyle(fontSize: 13, color: Colors.white70)),
             ]),
           ])),
         ]),
@@ -123,41 +123,41 @@ class _ClinicDetailScreenState extends State<ClinicDetailScreen> {
   // ─── BODY ────────────────────────────────────────────
   Widget _buildBody() {
     return Padding(
-      padding: const EdgeInsets.all(MoewSpacing.lg),
+      padding: EdgeInsets.all(MoewSpacing.lg),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         // ── Action buttons (sticky feel at top) ──
         _buildActionButtons(),
-        const SizedBox(height: MoewSpacing.lg),
+        SizedBox(height: MoewSpacing.lg),
 
         // ── Contact card ──
         _buildContactCard(),
-        const SizedBox(height: MoewSpacing.md),
+        SizedBox(height: MoewSpacing.md),
 
         // ── Description ──
         if (_clinic!['description'] != null && _clinic!['description'].toString().isNotEmpty) ...[
           _buildSectionCard(
             title: 'Giới thiệu',
             icon: Icons.info_outline,
-            child: Text(_clinic!['description'].toString(), style: const TextStyle(fontSize: 14, color: MoewColors.textMain, height: 1.5)),
+            child: Text(_clinic!['description'].toString(), style: TextStyle(fontSize: 14, color: MoewColors.textMain, height: 1.5)),
           ),
-          const SizedBox(height: MoewSpacing.md),
+          SizedBox(height: MoewSpacing.md),
         ],
 
         // ── Open hours ──
         if (_clinic!['openHours'] is Map && (_clinic!['openHours'] as Map).isNotEmpty) ...[
           _buildOpenHoursCard(),
-          const SizedBox(height: MoewSpacing.md),
+          SizedBox(height: MoewSpacing.md),
         ],
 
         // ── Services ──
         if (_clinic!['services'] is List && (_clinic!['services'] as List).isNotEmpty) ...[
           _buildServicesCard(),
-          const SizedBox(height: MoewSpacing.md),
+          SizedBox(height: MoewSpacing.md),
         ],
 
         // ── Reviews ──
         _buildReviewsSection(),
-        const SizedBox(height: MoewSpacing.lg),
+        SizedBox(height: MoewSpacing.lg),
       ]),
     );
   }
@@ -174,7 +174,7 @@ class _ClinicDetailScreenState extends State<ClinicDetailScreen> {
           onTap: _openMap,
         ),
       ),
-      const SizedBox(width: 12),
+      SizedBox(width: 12),
       Expanded(
         child: _actionButton(
           icon: Icons.calendar_month_rounded,
@@ -198,7 +198,7 @@ class _ClinicDetailScreenState extends State<ClinicDetailScreen> {
         borderRadius: BorderRadius.circular(MoewRadius.lg),
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14),
+          padding: EdgeInsets.symmetric(vertical: 14),
           decoration: filled
               ? null
               : BoxDecoration(
@@ -207,7 +207,7 @@ class _ClinicDetailScreenState extends State<ClinicDetailScreen> {
                 ),
           child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Icon(icon, size: 20, color: filled ? Colors.white : color),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: filled ? Colors.white : color)),
           ]),
         ),
@@ -218,7 +218,7 @@ class _ClinicDetailScreenState extends State<ClinicDetailScreen> {
   // ─── CONTACT CARD ────────────────────────────────────
   Widget _buildContactCard() {
     return Container(
-      padding: const EdgeInsets.all(MoewSpacing.md),
+      padding: EdgeInsets.all(MoewSpacing.md),
       decoration: BoxDecoration(
         color: MoewColors.white,
         borderRadius: BorderRadius.circular(MoewRadius.lg),
@@ -238,14 +238,14 @@ class _ClinicDetailScreenState extends State<ClinicDetailScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
+        padding: EdgeInsets.symmetric(vertical: 6),
         child: Row(children: [
           Container(
             width: 32, height: 32,
             decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
             child: Icon(icon, size: 16, color: color),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(child: Text(
             text,
             style: TextStyle(fontSize: 14, color: onTap != null ? color : MoewColors.textMain, fontWeight: FontWeight.w500,
@@ -259,7 +259,7 @@ class _ClinicDetailScreenState extends State<ClinicDetailScreen> {
   // ─── SECTION CARD ────────────────────────────────────
   Widget _buildSectionCard({required String title, required IconData icon, required Widget child}) {
     return Container(
-      padding: const EdgeInsets.all(MoewSpacing.md),
+      padding: EdgeInsets.all(MoewSpacing.md),
       decoration: BoxDecoration(
         color: MoewColors.white,
         borderRadius: BorderRadius.circular(MoewRadius.lg),
@@ -268,10 +268,10 @@ class _ClinicDetailScreenState extends State<ClinicDetailScreen> {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           Icon(icon, size: 18, color: MoewColors.primary),
-          const SizedBox(width: 8),
-          Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: MoewColors.textMain, letterSpacing: 0.5)),
+          SizedBox(width: 8),
+          Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: MoewColors.textMain, letterSpacing: 0.5)),
         ]),
-        const SizedBox(height: MoewSpacing.sm),
+        SizedBox(height: MoewSpacing.sm),
         child,
       ]),
     );
@@ -297,8 +297,8 @@ class _ClinicDetailScreenState extends State<ClinicDetailScreen> {
             final hourText = e.value.toString();
             return Container(
               width: 80,
-              margin: const EdgeInsets.only(right: 8),
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+              margin: EdgeInsets.only(right: 8),
+              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 6),
               decoration: BoxDecoration(
                 color: isToday ? MoewColors.success.withValues(alpha: 0.1) : MoewColors.surface,
                 borderRadius: BorderRadius.circular(MoewRadius.md),
@@ -306,7 +306,7 @@ class _ClinicDetailScreenState extends State<ClinicDetailScreen> {
               ),
               child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                 Text(dayName, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: isToday ? MoewColors.success : MoewColors.textMain)),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(hourText, textAlign: TextAlign.center, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: isToday ? MoewColors.success : MoewColors.textSub)),
               ]),
             );
@@ -325,16 +325,16 @@ class _ClinicDetailScreenState extends State<ClinicDetailScreen> {
       child: Wrap(spacing: 8, runSpacing: 8, children: services.map<Widget>((s) {
         final name = s is Map ? (s['name'] ?? s.toString()) : s.toString();
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: MoewColors.tintBlue,
             borderRadius: BorderRadius.circular(MoewRadius.md),
             border: Border.all(color: MoewColors.primary.withValues(alpha: 0.15)),
           ),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
-            const Icon(Icons.check_circle_outline, size: 14, color: MoewColors.primary),
-            const SizedBox(width: 6),
-            Text(name, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: MoewColors.primary)),
+            Icon(Icons.check_circle_outline, size: 14, color: MoewColors.primary),
+            SizedBox(width: 6),
+            Text(name, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: MoewColors.primary)),
           ]),
         );
       }).toList()),
@@ -345,21 +345,21 @@ class _ClinicDetailScreenState extends State<ClinicDetailScreen> {
   Widget _buildReviewsSection() {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [
-        const Icon(Icons.rate_review_outlined, size: 18, color: MoewColors.warning),
-        const SizedBox(width: 8),
+        Icon(Icons.rate_review_outlined, size: 18, color: MoewColors.warning),
+        SizedBox(width: 8),
         Text('Đánh giá', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: MoewColors.textMain, letterSpacing: 0.5)),
-        const Spacer(),
+        Spacer(),
         if (_reviews.isNotEmpty) Text('${_reviews.length} đánh giá', style: MoewTextStyles.caption),
       ]),
-      const SizedBox(height: MoewSpacing.sm),
+      SizedBox(height: MoewSpacing.sm),
       if (_reviews.isEmpty)
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(MoewSpacing.lg),
+          padding: EdgeInsets.all(MoewSpacing.lg),
           decoration: BoxDecoration(color: MoewColors.surface, borderRadius: BorderRadius.circular(MoewRadius.lg)),
           child: Column(children: [
-            const Icon(Icons.chat_bubble_outline, size: 32, color: MoewColors.textSub),
-            const SizedBox(height: 8),
+            Icon(Icons.chat_bubble_outline, size: 32, color: MoewColors.textSub),
+            SizedBox(height: 8),
             Text('Chưa có đánh giá nào', style: MoewTextStyles.caption),
           ]),
         )
@@ -375,8 +375,8 @@ class _ClinicDetailScreenState extends State<ClinicDetailScreen> {
     final date = r['createdAt']?.toString();
 
     return Container(
-      margin: const EdgeInsets.only(bottom: MoewSpacing.sm),
-      padding: const EdgeInsets.all(MoewSpacing.md),
+      margin: EdgeInsets.only(bottom: MoewSpacing.sm),
+      padding: EdgeInsets.all(MoewSpacing.md),
       decoration: BoxDecoration(
         color: MoewColors.white,
         borderRadius: BorderRadius.circular(MoewRadius.lg),
@@ -393,25 +393,25 @@ class _ClinicDetailScreenState extends State<ClinicDetailScreen> {
             ),
             child: Center(child: Text(
               userName.isNotEmpty ? userName[0].toUpperCase() : '?',
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: MoewColors.accent),
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: MoewColors.accent),
             )),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(userName, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: MoewColors.textMain)),
-            if (date != null && date.length >= 10) Text(date.substring(0, 10), style: const TextStyle(fontSize: 11, color: MoewColors.textSub)),
+            Text(userName, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: MoewColors.textMain)),
+            if (date != null && date.length >= 10) Text(date.substring(0, 10), style: TextStyle(fontSize: 11, color: MoewColors.textSub)),
           ])),
           // Stars
           Row(mainAxisSize: MainAxisSize.min, children: List.generate(5, (i) =>
             Padding(
-              padding: const EdgeInsets.only(left: 1),
+              padding: EdgeInsets.only(left: 1),
               child: Icon(i < rating ? Icons.star_rounded : Icons.star_outline_rounded, size: 16, color: i < rating ? MoewColors.warning : MoewColors.border),
             ),
           )),
         ]),
         if (comment != null && comment.isNotEmpty) Padding(
-          padding: const EdgeInsets.only(top: 10, left: 46),
-          child: Text(comment, style: const TextStyle(fontSize: 14, color: MoewColors.textMain, height: 1.4)),
+          padding: EdgeInsets.only(top: 10, left: 46),
+          child: Text(comment, style: TextStyle(fontSize: 14, color: MoewColors.textMain, height: 1.4)),
         ),
       ]),
     );

@@ -24,7 +24,7 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
     return SafeArea(
       bottom: false,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
+        padding: EdgeInsets.symmetric(
             horizontal: MoewSpacing.lg, vertical: MoewSpacing.sm),
         child: Row(
           children: [
@@ -38,17 +38,17 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
                     color: MoewColors.surface,
                     borderRadius: BorderRadius.circular(MoewRadius.full),
                   ),
-                  child: const Icon(Icons.arrow_back,
+                  child: Icon(Icons.arrow_back,
                       size: 22, color: MoewColors.textMain),
                 ),
               )
             else
-              const SizedBox(width: 40),
+              SizedBox(width: 40),
             Expanded(
               child: Text(
                 title,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
                   color: MoewColors.textMain,
@@ -58,7 +58,7 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
             if (actions != null)
               Row(mainAxisSize: MainAxisSize.min, children: actions!)
             else
-              const SizedBox(width: 40),
+              SizedBox(width: 40),
           ],
         ),
       ),
@@ -82,7 +82,7 @@ class StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(MoewRadius.full),
@@ -91,7 +91,7 @@ class StatusBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 12, color: color),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
           Text(
             label,
             style: TextStyle(
@@ -127,7 +127,7 @@ class EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.only(top: MoewSpacing.xxl),
+        padding: EdgeInsets.only(top: MoewSpacing.xxl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -140,26 +140,26 @@ class EmptyState extends StatelessWidget {
               ),
               child: Icon(icon, size: 48, color: color.withValues(alpha: 0.4)),
             ),
-            const SizedBox(height: MoewSpacing.lg),
+            SizedBox(height: MoewSpacing.lg),
             Text(
               message,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 15,
                 color: MoewColors.textSub,
               ),
               textAlign: TextAlign.center,
             ),
             if (buttonLabel != null && onAction != null) ...[
-              const SizedBox(height: MoewSpacing.lg),
+              SizedBox(height: MoewSpacing.lg),
               ElevatedButton.icon(
                 onPressed: onAction,
-                icon: const Icon(Icons.add, size: 20),
+                icon: Icon(Icons.add, size: 20),
                 label: Text(buttonLabel!),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: color,
                   foregroundColor: Colors.white,
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(MoewRadius.md),
                   ),

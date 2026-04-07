@@ -38,58 +38,58 @@ class _ClinicListScreenState extends State<ClinicListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MoewColors.background,
-      appBar: const AppHeader(title: 'Phòng khám', showBack: false),
+      appBar: AppHeader(title: 'Phòng khám', showBack: false),
       body: Column(children: [
         // Search
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: MoewSpacing.lg),
+          padding: EdgeInsets.symmetric(horizontal: MoewSpacing.lg),
           child: TextField(
             controller: _searchCtrl,
             decoration: InputDecoration(
               hintText: 'Tìm phòng khám...',
-              prefixIcon: const Icon(Icons.search, color: MoewColors.textSub),
-              suffixIcon: _searchCtrl.text.isNotEmpty ? IconButton(icon: const Icon(Icons.close), onPressed: () { _searchCtrl.clear(); _fetch(); }) : null,
+              prefixIcon: Icon(Icons.search, color: MoewColors.textSub),
+              suffixIcon: _searchCtrl.text.isNotEmpty ? IconButton(icon: Icon(Icons.close), onPressed: () { _searchCtrl.clear(); _fetch(); }) : null,
             ),
             onSubmitted: (v) => _fetch(search: v.trim().isNotEmpty ? v.trim() : null),
           ),
         ),
-        const SizedBox(height: MoewSpacing.md),
+        SizedBox(height: MoewSpacing.md),
         Expanded(
           child: _loading
-              ? const Center(child: CircularProgressIndicator(color: MoewColors.primary))
+              ? Center(child: CircularProgressIndicator(color: MoewColors.primary))
               : _clinics.isEmpty
-                  ? const EmptyState(icon: Icons.medical_services_outlined, color: MoewColors.primary, message: 'Không tìm thấy phòng khám')
+                  ? EmptyState(icon: Icons.medical_services_outlined, color: MoewColors.primary, message: 'Không tìm thấy phòng khám')
                   : RefreshIndicator(onRefresh: _fetch, child: ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: MoewSpacing.lg),
+                      padding: EdgeInsets.symmetric(horizontal: MoewSpacing.lg),
                       itemCount: _clinics.length,
                       itemBuilder: (ctx, i) {
                         final c = _clinics[i] as Map<String, dynamic>;
                         return GestureDetector(
                           onTap: () => Navigator.pushNamed(context, '/clinic-detail', arguments: c['id']),
                           child: Container(
-                            margin: const EdgeInsets.only(bottom: MoewSpacing.sm),
-                            padding: const EdgeInsets.all(MoewSpacing.md),
+                            margin: EdgeInsets.only(bottom: MoewSpacing.sm),
+                            padding: EdgeInsets.all(MoewSpacing.md),
                             decoration: BoxDecoration(color: MoewColors.white, borderRadius: BorderRadius.circular(MoewRadius.lg), boxShadow: MoewShadows.card),
                             child: Row(children: [
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(MoewRadius.sm),
                                 child: c['avatar'] != null
                                     ? CachedNetworkImage(imageUrl: c['avatar'].toString().startsWith('http') ? c['avatar'] : '${ApiConfig.baseUrl}${c['avatar']}', width: 60, height: 60, fit: BoxFit.cover)
-                                    : Container(width: 60, height: 60, color: MoewColors.tintBlue, child: const Icon(Icons.medical_services, color: MoewColors.primary)),
+                                    : Container(width: 60, height: 60, color: MoewColors.tintBlue, child: Icon(Icons.medical_services, color: MoewColors.primary)),
                               ),
-                              const SizedBox(width: 12),
+                              SizedBox(width: 12),
                               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                Text(c['name'] ?? '', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: MoewColors.textMain)),
+                                Text(c['name'] ?? '', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: MoewColors.textMain)),
                                 Text(c['address'] ?? '', style: MoewTextStyles.caption, maxLines: 1, overflow: TextOverflow.ellipsis),
                                 Row(children: [
-                                  const Icon(Icons.star, size: 14, color: MoewColors.warning),
-                                  const SizedBox(width: 4),
-                                  Text('${c['rating'] ?? 0}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: MoewColors.textMain)),
+                                  Icon(Icons.star, size: 14, color: MoewColors.warning),
+                                  SizedBox(width: 4),
+                                  Text('${c['rating'] ?? 0}', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: MoewColors.textMain)),
                                   if (c['reviewCount'] != null) ...[Text(' · ', style: MoewTextStyles.caption), Text('${c['reviewCount']} đánh giá', style: MoewTextStyles.caption)],
                                   if (c['distance'] != null) ...[Text(' · ', style: MoewTextStyles.caption), Text('${c['distance']}km', style: MoewTextStyles.caption)],
                                 ]),
                               ])),
-                              const Icon(Icons.chevron_right, size: 20, color: MoewColors.textSub),
+                              Icon(Icons.chevron_right, size: 20, color: MoewColors.textSub),
                             ]),
                           ),
                         );

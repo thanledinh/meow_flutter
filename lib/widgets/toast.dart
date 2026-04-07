@@ -120,7 +120,7 @@ class _ToastWidgetState extends State<_ToastWidget>
           child: Material(
             color: Colors.transparent,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(
                 color: widget.bgColor,
                 borderRadius: BorderRadius.circular(MoewRadius.md),
@@ -135,11 +135,11 @@ class _ToastWidgetState extends State<_ToastWidget>
               child: Row(
                 children: [
                   Icon(widget.icon, color: Colors.white, size: 20),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       widget.message,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,

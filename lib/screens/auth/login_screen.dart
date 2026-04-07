@@ -74,34 +74,42 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: MoewColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.bodyLarge?.color),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: MoewSpacing.lg, vertical: MoewSpacing.xl),
+            padding: EdgeInsets.symmetric(horizontal: MoewSpacing.lg, vertical: MoewSpacing.xl),
             child: Column(
               children: [
                 // Logo
                 Container(
                   width: 100, height: 100,
                   decoration: BoxDecoration(
-                    color: MoewColors.surface,
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(MoewRadius.full),
                     boxShadow: MoewShadows.card,
                   ),
-                  child: const Icon(Icons.pets, size: 48, color: MoewColors.primary),
+                  child: Icon(Icons.pets, size: 48, color: MoewColors.primary),
                 ),
-                const SizedBox(height: MoewSpacing.md),
-                Text('Moew', style: TextStyle(fontSize: 36, fontWeight: FontWeight.w800, color: MoewColors.textMain, letterSpacing: 2)),
-                const SizedBox(height: MoewSpacing.sm),
-                const Text('Cùng chăm sóc Boss yêu của bạn', style: TextStyle(fontSize: 15, color: MoewColors.textSub)),
-                const SizedBox(height: MoewSpacing.xl),
+                SizedBox(height: MoewSpacing.md),
+                Text('Đăng nhập', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: Theme.of(context).textTheme.headlineLarge?.color, letterSpacing: 1)),
+                SizedBox(height: MoewSpacing.sm),
+                Text('Vui lòng điền thông tin để tiếp tục', style: TextStyle(fontSize: 15, color: Theme.of(context).textTheme.bodySmall?.color)),
+                SizedBox(height: MoewSpacing.xl),
 
                 // Form card
                 Container(
-                  padding: const EdgeInsets.all(MoewSpacing.lg),
+                  padding: EdgeInsets.all(MoewSpacing.lg),
                   decoration: BoxDecoration(
-                    color: MoewColors.white,
+                    color: Theme.of(context).cardTheme.color,
                     borderRadius: BorderRadius.circular(MoewRadius.xl),
                     boxShadow: MoewShadows.card,
                   ),
@@ -109,34 +117,34 @@ class _LoginScreenState extends State<LoginScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Email
-                      Text('EMAIL', style: MoewTextStyles.label),
-                      const SizedBox(height: MoewSpacing.sm),
+                      Text('EMAIL', style: Theme.of(context).textTheme.labelSmall),
+                      SizedBox(height: MoewSpacing.sm),
                       TextField(
                         controller: _emailCtrl,
                         keyboardType: TextInputType.emailAddress,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           hintText: 'your@email.com',
-                          prefixIcon: Icon(Icons.mail_outline, size: 20, color: MoewColors.textSub),
+                          prefixIcon: Icon(Icons.mail_outline, size: 20, color: Theme.of(context).textTheme.bodySmall?.color),
                         ),
                       ),
-                      const SizedBox(height: MoewSpacing.md),
+                      SizedBox(height: MoewSpacing.md),
 
                       // Password
-                      Text('MẬT KHẨU', style: MoewTextStyles.label),
-                      const SizedBox(height: MoewSpacing.sm),
+                      Text('MẬT KHẨU', style: Theme.of(context).textTheme.labelSmall),
+                      SizedBox(height: MoewSpacing.sm),
                       TextField(
                         controller: _passCtrl,
                         obscureText: !_showPassword,
                         decoration: InputDecoration(
                           hintText: '••••••••',
-                          prefixIcon: const Icon(Icons.lock_outline, size: 20, color: MoewColors.textSub),
+                          prefixIcon: Icon(Icons.lock_outline, size: 20, color: Theme.of(context).textTheme.bodySmall?.color),
                           suffixIcon: IconButton(
-                            icon: Icon(_showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 22, color: MoewColors.textSub),
+                            icon: Icon(_showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 22, color: Theme.of(context).textTheme.bodySmall?.color),
                             onPressed: () => setState(() => _showPassword = !_showPassword),
                           ),
                         ),
                       ),
-                      const SizedBox(height: MoewSpacing.xs),
+                      SizedBox(height: MoewSpacing.xs),
 
                       // Forgot
                       Align(
@@ -146,7 +154,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Text('Quên mật khẩu?', style: TextStyle(color: MoewColors.primary, fontSize: 13, fontWeight: FontWeight.w600)),
                         ),
                       ),
-                      const SizedBox(height: MoewSpacing.sm),
+                      SizedBox(height: MoewSpacing.sm),
 
                       // Login button
                       SizedBox(
@@ -155,16 +163,16 @@ class _LoginScreenState extends State<LoginScreen> {
                           onPressed: _loading ? null : _handleLogin,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: MoewColors.primary,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            padding: EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(MoewRadius.md)),
                           ),
                           child: _loading
-                              ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                              ? SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                               : Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Icon(Icons.login, size: 22, color: Colors.white),
-                                    const SizedBox(width: 8),
+                                    Icon(Icons.login, size: 22, color: Colors.white),
+                                    SizedBox(width: 8),
                                     Text('Đăng nhập', style: MoewTextStyles.button),
                                   ],
                                 ),
@@ -173,16 +181,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: MoewSpacing.lg),
+                SizedBox(height: MoewSpacing.lg),
 
                 // Footer
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('Chưa có tài khoản? ', style: TextStyle(color: MoewColors.textSub, fontSize: 14)),
+                    Text('Chưa có tài khoản? ', style: TextStyle(color: Theme.of(context).textTheme.bodySmall?.color, fontSize: 14)),
                     GestureDetector(
-                      onTap: () => Navigator.pushNamed(context, '/register'),
-                      child: const Text('Đăng ký ngay', style: TextStyle(color: MoewColors.secondary, fontSize: 14, fontWeight: FontWeight.w700)),
+                      onTap: () => Navigator.pushReplacementNamed(context, '/register'),
+                      child: Text('Đăng ký ngay', style: TextStyle(color: MoewColors.secondary, fontSize: 14, fontWeight: FontWeight.w700)),
                     ),
                   ],
                 ),

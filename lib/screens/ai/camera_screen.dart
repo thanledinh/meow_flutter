@@ -33,26 +33,26 @@ class _CameraScreenState extends State<CameraScreen> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white), onPressed: () => Navigator.pop(context)),
-        title: const Text('Camera', style: TextStyle(color: Colors.white)),
+        leading: IconButton(icon: Icon(Icons.arrow_back, color: Colors.white), onPressed: () => Navigator.pop(context)),
+        title: Text('Camera', style: TextStyle(color: Colors.white)),
       ),
       body: _imagePath != null
           ? Column(children: [
               Expanded(child: Image.file(File(_imagePath!), fit: BoxFit.contain)),
               SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16),
                   child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
                     ElevatedButton.icon(
                       onPressed: _takePhoto,
-                      icon: const Icon(Icons.camera_alt),
-                      label: const Text('Chụp lại'),
+                      icon: Icon(Icons.camera_alt),
+                      label: Text('Chụp lại'),
                       style: ElevatedButton.styleFrom(backgroundColor: MoewColors.primary),
                     ),
                     ElevatedButton.icon(
                       onPressed: () => Navigator.pop(context, _imagePath),
-                      icon: const Icon(Icons.check),
-                      label: const Text('Sử dụng'),
+                      icon: Icon(Icons.check),
+                      label: Text('Sử dụng'),
                       style: ElevatedButton.styleFrom(backgroundColor: MoewColors.success),
                     ),
                   ]),
@@ -61,9 +61,9 @@ class _CameraScreenState extends State<CameraScreen> {
             ])
           : Center(
               child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                IconButton(icon: const Icon(Icons.camera_alt, size: 64, color: Colors.white70), onPressed: _takePhoto),
-                const SizedBox(height: 16),
-                TextButton(onPressed: _fromGallery, child: const Text('Chọn từ thư viện', style: TextStyle(color: Colors.white70))),
+                IconButton(icon: Icon(Icons.camera_alt, size: 64, color: Colors.white70), onPressed: _takePhoto),
+                SizedBox(height: 16),
+                TextButton(onPressed: _fromGallery, child: Text('Chọn từ thư viện', style: TextStyle(color: Colors.white70))),
               ]),
             ),
     );

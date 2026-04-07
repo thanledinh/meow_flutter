@@ -14,6 +14,21 @@ class AuthApi {
       await TokenManager.save(
         payload['token'] as String,
         payload['user'] as Map<String, dynamic>?,
+        refreshToken: payload['refreshToken'] as String?,
+      );
+    }
+    return result;
+  }
+
+  /// Đăng nhập Social
+  static Future<ApiResponse> socialLogin(String idToken) async {
+    final result = await _client.post(Endpoints.authSocialLogin, {'token': idToken}, auth: false);
+    final payload = (result.data as Map<String, dynamic>?)?['data'] ?? result.data;
+    if (result.success && payload is Map && payload['token'] != null) {
+      await TokenManager.save(
+        payload['token'] as String,
+        payload['user'] as Map<String, dynamic>?,
+        refreshToken: payload['refreshToken'] as String?,
       );
     }
     return result;
@@ -28,6 +43,7 @@ class AuthApi {
       await TokenManager.save(
         payload['token'] as String,
         payload['user'] as Map<String, dynamic>?,
+        refreshToken: payload['refreshToken'] as String?,
       );
     }
     return result;
@@ -57,6 +73,19 @@ class AuthApi {
   /// Xóa tài khoản
   static Future<ApiResponse> deleteAccount() =>
       _client.delete(Endpoints.authAccount);
+
+  /// API Social / Users
+  static Future<ApiResponse> toggleFollow(dynamic targetId) =>
+      _client.post(Endpoints.userFollow(targetId), {});
+
+  static Future<ApiResponse> getPublicProfile(dynamic userId) =>
+      _client.get(Endpoints.userPublicProfile(userId));
+
+  static Future<ApiResponse> getFollowers(dynamic userId) =>
+      _client.get(Endpoints.userFollowers(userId));
+
+  static Future<ApiResponse> getFollowing(dynamic userId) =>
+      _client.get(Endpoints.userFollowing(userId));
 
   /// Check đã login chưa (local)
   static Future<bool> isLoggedIn() => TokenManager.isLoggedIn();

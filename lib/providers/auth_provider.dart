@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../api/api_client.dart';
+import '../services/mqtt_service.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
+import 'package:google_sign_in/google_sign_in.dart';
 
 /// Auth Provider — replaces AuthContext.js
 /// Quản lý trạng thái đăng nhập toàn app
@@ -41,6 +44,11 @@ class AuthProvider extends ChangeNotifier {
     _user = await TokenManager.getUser();
     _isLoggedIn = true;
     notifyListeners();
+    // Kết nối MQTT — field 'id' trong user object chính là Firebase UID
+    final userId = _user?['id']?.toString();
+    if (userId != null) {
+      MqttService().connect(userId);
+    }
   }
 
   /// Cập nhật user info locally (sau khi edit profile)
@@ -51,6 +59,11 @@ class AuthProvider extends ChangeNotifier {
 
   /// Gọi khi logout
   Future<void> onLogout() async {
+    MqttService().disconnect(); // Ngắt MQTT trước
+    try {
+      await GoogleSignIn().signOut();
+      await FirebaseAuth.instance.signOut();
+    } catch (_) {}
     await TokenManager.clear();
     _user = null;
     _isLoggedIn = false;

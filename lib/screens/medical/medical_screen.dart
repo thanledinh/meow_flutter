@@ -48,12 +48,12 @@ class _MedicalScreenState extends State<MedicalScreen> with SingleTickerProvider
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MoewColors.background,
-      appBar: const AppHeader(title: 'Hồ sơ y tế'),
+      appBar: AppHeader(title: 'Hồ sơ y tế'),
       body: Column(children: [
         // Tab bar
         Container(
-          margin: const EdgeInsets.symmetric(horizontal: MoewSpacing.lg),
-          padding: const EdgeInsets.all(4),
+          margin: EdgeInsets.symmetric(horizontal: MoewSpacing.lg),
+          padding: EdgeInsets.all(4),
           decoration: BoxDecoration(color: MoewColors.surface, borderRadius: BorderRadius.circular(MoewRadius.md)),
           child: TabBar(
             controller: _tabCtrl,
@@ -61,20 +61,20 @@ class _MedicalScreenState extends State<MedicalScreen> with SingleTickerProvider
             indicatorSize: TabBarIndicatorSize.tab,
             labelColor: MoewColors.primary,
             unselectedLabelColor: MoewColors.textSub,
-            labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-            unselectedLabelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+            labelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+            unselectedLabelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
             dividerHeight: 0,
-            tabs: const [
+            tabs: [
               Tab(icon: Icon(Icons.medical_services_outlined, size: 18), text: 'Y tế'),
               Tab(icon: Icon(Icons.fitness_center, size: 18), text: 'Tiêm chủng'),
               Tab(icon: Icon(Icons.calendar_month, size: 18), text: 'Lịch hẹn'),
             ],
           ),
         ),
-        const SizedBox(height: MoewSpacing.md),
+        SizedBox(height: MoewSpacing.md),
         Expanded(
           child: _loading
-              ? const Center(child: CircularProgressIndicator(color: MoewColors.primary))
+              ? Center(child: CircularProgressIndicator(color: MoewColors.primary))
               : TabBarView(controller: _tabCtrl, children: [
                   _buildList(_medical, 'Chưa có hồ sơ y tế', MoewColors.danger, Icons.medical_services_outlined),
                   _buildList(_vaccines, 'Chưa có lịch tiêm', MoewColors.success, Icons.fitness_center),
@@ -88,7 +88,7 @@ class _MedicalScreenState extends State<MedicalScreen> with SingleTickerProvider
           if (result == true) _fetchAll();
         },
         backgroundColor: MoewColors.primary,
-        child: const Icon(Icons.add, color: Colors.white),
+        child: Icon(Icons.add, color: Colors.white),
       ),
     );
   }
@@ -98,7 +98,7 @@ class _MedicalScreenState extends State<MedicalScreen> with SingleTickerProvider
     return RefreshIndicator(
       onRefresh: _fetchAll,
       child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: MoewSpacing.lg),
+        padding: EdgeInsets.symmetric(horizontal: MoewSpacing.lg),
         itemCount: items.length,
         itemBuilder: (ctx, i) {
           final item = (items[i] is Map) ? items[i] as Map<String, dynamic> : <String, dynamic>{};
@@ -107,22 +107,22 @@ class _MedicalScreenState extends State<MedicalScreen> with SingleTickerProvider
           return GestureDetector(
             onTap: () => Navigator.pushNamed(context, '/medical-detail', arguments: item),
             child: Container(
-              margin: const EdgeInsets.only(bottom: MoewSpacing.sm),
-              padding: const EdgeInsets.all(MoewSpacing.md),
+              margin: EdgeInsets.only(bottom: MoewSpacing.sm),
+              padding: EdgeInsets.all(MoewSpacing.md),
               decoration: BoxDecoration(color: MoewColors.white, borderRadius: BorderRadius.circular(MoewRadius.lg), boxShadow: MoewShadows.card),
               child: Row(children: [
                 Container(width: 40, height: 40, decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(MoewRadius.sm)), child: Icon(icon, size: 20, color: color)),
-                const SizedBox(width: MoewSpacing.md),
+                SizedBox(width: MoewSpacing.md),
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: MoewColors.textMain)),
+                  Text(title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: MoewColors.textMain)),
                   if (date.length >= 10) Text(date.substring(0, 10), style: MoewTextStyles.caption),
                 ])),
                 GestureDetector(
                   onTap: () => Navigator.pushNamed(context, '/cost-breakdown', arguments: {'petId': widget.petId, 'recordId': item['id'] ?? item['_id'], 'type': ['medical', 'vaccination', 'appointment'][_tab]}),
                   child: Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: EdgeInsets.all(8),
                     decoration: BoxDecoration(color: MoewColors.tintAmber, borderRadius: BorderRadius.circular(MoewRadius.sm)),
-                    child: const Icon(Icons.attach_money, size: 18, color: MoewColors.secondary),
+                    child: Icon(Icons.attach_money, size: 18, color: MoewColors.secondary),
                   ),
                 ),
               ]),

@@ -42,14 +42,14 @@ class _PetWeightScreenState extends State<PetWeightScreen> {
       builder: (ctx) => StatefulBuilder(builder: (ctx, setBS) => Padding(
         padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(ctx).viewInsets.bottom + 20),
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text('Cân nặng hôm nay', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-          const SizedBox(height: 4),
-          Text(_data?['pet']?['name'] ?? 'Pet', style: const TextStyle(fontSize: 12, color: MoewColors.textSub)),
-          const SizedBox(height: 14),
+          Text('Cân nặng hôm nay', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+          SizedBox(height: 4),
+          Text(_data?['pet']?['name'] ?? 'Pet', style: TextStyle(fontSize: 12, color: MoewColors.textSub)),
+          SizedBox(height: 14),
           TextField(controller: weightCtrl, keyboardType: const TextInputType.numberWithOptions(decimal: true), autofocus: true, decoration: const InputDecoration(labelText: 'Cân nặng (kg) *', suffixText: 'kg', prefixIcon: Icon(Icons.monitor_weight, size: 18))),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           TextField(controller: noteCtrl, decoration: const InputDecoration(labelText: 'Ghi chú (tùy chọn)', prefixIcon: Icon(Icons.edit_note, size: 18))),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           SizedBox(width: double.infinity, child: ElevatedButton(
             onPressed: saving ? null : () async {
               if (weightCtrl.text.trim().isEmpty) { MoewToast.show(ctx, message: 'Nhập cân nặng', type: ToastType.warning); return; }
@@ -57,13 +57,13 @@ class _PetWeightScreenState extends State<PetWeightScreen> {
               final body = <String, dynamic>{ 'weight': double.tryParse(weightCtrl.text.trim()) ?? 0 };
               if (noteCtrl.text.trim().isNotEmpty) body['note'] = noteCtrl.text.trim();
               final res = await PetApi.addWeight(widget.petId, body);
-              if (!mounted) return;
+              if (!mounted || !ctx.mounted) return;
               setBS(() => saving = false);
               if (res.success) { Navigator.pop(ctx); MoewToast.show(context, message: res.data?['message'] ?? 'Đã ghi nhận!', type: ToastType.success); _fetch(); }
               else { MoewToast.show(ctx, message: res.error ?? 'Lỗi', type: ToastType.error); }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: MoewColors.primary, padding: const EdgeInsets.symmetric(vertical: 14)),
-            child: saving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Text('Lưu', style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
+            style: ElevatedButton.styleFrom(backgroundColor: MoewColors.primary, padding: EdgeInsets.symmetric(vertical: 14)),
+            child: saving ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text('Lưu', style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
           )),
         ]),
       )),
@@ -72,11 +72,11 @@ class _PetWeightScreenState extends State<PetWeightScreen> {
 
   Future<void> _deleteLog(Map<String, dynamic> log) async {
     final ok = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(
-      title: const Text('Xóa?', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+      title: Text('Xóa?', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
       content: Text('Xóa bản ghi ${log['weight']}kg ngày ${log['date']?.toString().substring(0, 10) ?? ''}?'),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Hủy')),
-        TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Xóa', style: TextStyle(color: MoewColors.danger))),
+        TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text('Hủy')),
+        TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text('Xóa', style: TextStyle(color: MoewColors.danger))),
       ],
     ));
     if (ok != true) return;
@@ -90,21 +90,21 @@ class _PetWeightScreenState extends State<PetWeightScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MoewColors.background,
-      appBar: const AppHeader(title: 'Theo dõi cân nặng'),
+      appBar: AppHeader(title: 'Theo dõi cân nặng'),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddWeight,
         backgroundColor: MoewColors.primary,
-        child: const Icon(Icons.add, color: Colors.white),
+        child: Icon(Icons.add, color: Colors.white),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: MoewColors.primary))
+          ? Center(child: CircularProgressIndicator(color: MoewColors.primary))
           : _data == null
-              ? const EmptyState(icon: Icons.monitor_weight, color: MoewColors.primary, message: 'Chưa có dữ liệu')
-              : ListView(padding: const EdgeInsets.all(MoewSpacing.md), children: [
+              ? EmptyState(icon: Icons.monitor_weight, color: MoewColors.primary, message: 'Chưa có dữ liệu')
+              : ListView(padding: EdgeInsets.all(MoewSpacing.md), children: [
                   _buildSummary(),
-                  const SizedBox(height: 14),
+                  SizedBox(height: 14),
                   _buildChart(),
-                  const SizedBox(height: 14),
+                  SizedBox(height: 14),
                   _buildHistory(),
                 ]),
     );
@@ -123,48 +123,48 @@ class _PetWeightScreenState extends State<PetWeightScreen> {
     final trendLabel = direction == 'gaining' ? 'Tăng cân' : direction == 'losing' ? 'Giảm cân' : 'Ổn định';
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(color: MoewColors.white, borderRadius: BorderRadius.circular(MoewRadius.lg), boxShadow: MoewShadows.soft),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           Icon(Icons.monitor_weight, size: 20, color: MoewColors.primary),
-          const SizedBox(width: 8),
-          Text(pet['name']?.toString() ?? 'Pet', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
-          const Spacer(),
+          SizedBox(width: 8),
+          Text(pet['name']?.toString() ?? 'Pet', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+          Spacer(),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(color: trendColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(MoewRadius.full)),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
               Icon(trendIcon, size: 14, color: trendColor),
-              const SizedBox(width: 4),
+              SizedBox(width: 4),
               Text(trendLabel, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: trendColor)),
             ]),
           ),
         ]),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         // Current weight big
         Row(children: [
-          Text('${stats['current'] ?? pet['currentWeight'] ?? '?'}', style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: MoewColors.primary)),
-          const Text(' kg', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: MoewColors.textSub)),
+          Text('${stats['current'] ?? pet['currentWeight'] ?? '?'}', style: TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: MoewColors.primary)),
+          Text(' kg', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: MoewColors.textSub)),
           const Spacer(),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
             if (trend['changeKg'] != null) Text('${(trend['changeKg'] as num) > 0 ? '+' : ''}${trend['changeKg']}kg (${trend['changePercent'] ?? 0}%)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: trendColor)),
-            if (daysSince != null) Text('$daysSince ngày trước', style: const TextStyle(fontSize: 11, color: MoewColors.textSub)),
+            if (daysSince != null) Text('$daysSince ngày trước', style: TextStyle(fontSize: 11, color: MoewColors.textSub)),
           ]),
         ]),
         if (needsWeighIn) ...[
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: EdgeInsets.all(8),
             decoration: BoxDecoration(color: MoewColors.warning.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(MoewRadius.sm)),
-            child: const Row(children: [
+            child: Row(children: [
               Icon(Icons.notifications_active, size: 14, color: MoewColors.warning),
               SizedBox(width: 6),
               Text('Nên cân lại — đã lâu chưa cập nhật', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: MoewColors.warning)),
             ]),
           ),
         ],
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         // Stats row
         Row(children: [
           _miniStat('Min', '${stats['min'] ?? '-'}kg'),
@@ -178,14 +178,14 @@ class _PetWeightScreenState extends State<PetWeightScreen> {
 
   Widget _miniStat(String label, String value) {
     return Expanded(child: Column(children: [
-      Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
-      Text(label, style: const TextStyle(fontSize: 10, color: MoewColors.textSub)),
+      Text(value, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
+      Text(label, style: TextStyle(fontSize: 10, color: MoewColors.textSub)),
     ]));
   }
 
   Widget _buildChart() {
     final chart = _data!['chart'] as List? ?? [];
-    if (chart.isEmpty) return const SizedBox();
+    if (chart.isEmpty) return SizedBox();
 
     final weights = chart.map<double>((c) => (c['weight'] as num).toDouble()).toList();
     final minW = weights.reduce(min) - 0.3;
@@ -193,11 +193,11 @@ class _PetWeightScreenState extends State<PetWeightScreen> {
     final range = maxW - minW;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(color: MoewColors.white, borderRadius: BorderRadius.circular(MoewRadius.lg), boxShadow: MoewShadows.soft),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Text('Biểu đồ cân nặng', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
-        const SizedBox(height: 12),
+        Text('Biểu đồ cân nặng', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+        SizedBox(height: 12),
         SizedBox(
           height: 120,
           child: CustomPaint(
@@ -205,10 +205,10 @@ class _PetWeightScreenState extends State<PetWeightScreen> {
             size: Size.infinite,
           ),
         ),
-        const SizedBox(height: 6),
+        SizedBox(height: 6),
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text(chart.first['date']?.toString().substring(5, 10) ?? '', style: const TextStyle(fontSize: 9, color: MoewColors.textSub)),
-          Text(chart.last['date']?.toString().substring(5, 10) ?? '', style: const TextStyle(fontSize: 9, color: MoewColors.textSub)),
+          Text(chart.first['date']?.toString().substring(5, 10) ?? '', style: TextStyle(fontSize: 9, color: MoewColors.textSub)),
+          Text(chart.last['date']?.toString().substring(5, 10) ?? '', style: TextStyle(fontSize: 9, color: MoewColors.textSub)),
         ]),
       ]),
     );
@@ -216,29 +216,29 @@ class _PetWeightScreenState extends State<PetWeightScreen> {
 
   Widget _buildHistory() {
     final chart = _data!['chart'] as List? ?? [];
-    if (chart.isEmpty) return const EmptyState(icon: Icons.history, color: MoewColors.textSub, message: 'Chưa có bản ghi');
+    if (chart.isEmpty) return EmptyState(icon: Icons.history, color: MoewColors.textSub, message: 'Chưa có bản ghi');
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text('Lịch sử', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
-      const SizedBox(height: 8),
+      Text('Lịch sử', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+      SizedBox(height: 8),
       ...chart.reversed.map<Widget>((log) {
         final m = log as Map<String, dynamic>;
         final date = m['date']?.toString().substring(0, 10) ?? '';
         return Container(
-          margin: const EdgeInsets.only(bottom: 6),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          margin: EdgeInsets.only(bottom: 6),
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(color: MoewColors.white, borderRadius: BorderRadius.circular(MoewRadius.md), boxShadow: MoewShadows.soft),
           child: Row(children: [
-            const Icon(Icons.monitor_weight, size: 16, color: MoewColors.primary),
-            const SizedBox(width: 8),
-            Text('${m['weight']}kg', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
-            const SizedBox(width: 8),
-            Text(date, style: const TextStyle(fontSize: 11, color: MoewColors.textSub)),
-            if (m['note'] != null) ...[const SizedBox(width: 8), Expanded(child: Text(m['note'].toString(), style: const TextStyle(fontSize: 10, color: MoewColors.textSub, fontStyle: FontStyle.italic), overflow: TextOverflow.ellipsis))],
+            Icon(Icons.monitor_weight, size: 16, color: MoewColors.primary),
+            SizedBox(width: 8),
+            Text('${m['weight']}kg', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+            SizedBox(width: 8),
+            Text(date, style: TextStyle(fontSize: 11, color: MoewColors.textSub)),
+            if (m['note'] != null) ...[SizedBox(width: 8), Expanded(child: Text(m['note'].toString(), style: TextStyle(fontSize: 10, color: MoewColors.textSub, fontStyle: FontStyle.italic), overflow: TextOverflow.ellipsis))],
             if (m['note'] == null) const Spacer(),
             GestureDetector(
               onTap: () => _deleteLog(m),
-              child: const Icon(Icons.close, size: 16, color: MoewColors.textSub),
+              child: Icon(Icons.close, size: 16, color: MoewColors.textSub),
             ),
           ]),
         );

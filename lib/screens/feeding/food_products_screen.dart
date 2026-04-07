@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -48,16 +47,16 @@ class _FoodProductsScreenState extends State<FoodProductsScreen> {
         return Padding(
           padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(ctx).viewInsets.bottom + 20),
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text('Thêm sản phẩm', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: MoewColors.textMain)),
-            const SizedBox(height: 4),
-            const Text('AI sẽ tự phân tích dinh dưỡng', style: TextStyle(fontSize: 12, color: MoewColors.textSub)),
-            const SizedBox(height: 16),
+            Text('Thêm sản phẩm', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: MoewColors.textMain)),
+            SizedBox(height: 4),
+            Text('AI sẽ tự phân tích dinh dưỡng', style: TextStyle(fontSize: 12, color: MoewColors.textSub)),
+            SizedBox(height: 16),
             TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Tên sản phẩm *', prefixIcon: Icon(Icons.fastfood, size: 18))),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             TextField(controller: brandCtrl, decoration: const InputDecoration(labelText: 'Thương hiệu', prefixIcon: Icon(Icons.business, size: 18))),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             TextField(controller: weightCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Trọng lượng (gram) *', prefixIcon: Icon(Icons.scale, size: 18))),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             // Camera button
             GestureDetector(
               onTap: () async {
@@ -68,16 +67,16 @@ class _FoodProductsScreenState extends State<FoodProductsScreen> {
                 setBS(() => imageB64 = 'data:image/jpeg;base64,${base64Encode(bytes)}');
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(color: MoewColors.surface, borderRadius: BorderRadius.circular(MoewRadius.sm), border: Border.all(color: MoewColors.border)),
                 child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   Icon(imageB64 != null ? Icons.check_circle : Icons.camera_alt, size: 18, color: imageB64 != null ? MoewColors.success : MoewColors.primary),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Text(imageB64 != null ? 'Đã chụp ảnh bao bì' : 'Chụp ảnh bao bì (tùy chọn)', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: imageB64 != null ? MoewColors.success : MoewColors.primary)),
                 ]),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -91,10 +90,10 @@ class _FoodProductsScreenState extends State<FoodProductsScreen> {
                     'name': nameCtrl.text.trim(),
                     'weightGrams': int.tryParse(weightCtrl.text.trim()) ?? 0,
                     if (brandCtrl.text.trim().isNotEmpty) 'brand': brandCtrl.text.trim(),
-                    if (imageB64 != null) 'image': imageB64,
+                    'image': ?imageB64,
                   };
                   final res = await FeedingApi.addProduct(body);
-                  if (!mounted) return;
+                  if (!mounted || !ctx.mounted) return;
                   setBS(() => adding = false);
                   if (res.success) {
                     Navigator.pop(ctx);
@@ -104,10 +103,10 @@ class _FoodProductsScreenState extends State<FoodProductsScreen> {
                     MoewToast.show(ctx, message: res.error ?? 'Lỗi', type: ToastType.error);
                   }
                 },
-                style: ElevatedButton.styleFrom(backgroundColor: MoewColors.success, padding: const EdgeInsets.symmetric(vertical: 14)),
+                style: ElevatedButton.styleFrom(backgroundColor: MoewColors.success, padding: EdgeInsets.symmetric(vertical: 14)),
                 child: adding
-                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : const Text('Thêm & AI phân tích', style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
+                    ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : Text('Thêm & AI phân tích', style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
               ),
             ),
           ]),
@@ -121,15 +120,15 @@ class _FoodProductsScreenState extends State<FoodProductsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Thêm ${p['name']}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        title: Text('Thêm ${p['name']}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
-          Text('Còn ${p['remainingGrams'] ?? 0}g / ${p['weightGrams'] ?? 0}g', style: const TextStyle(fontSize: 12, color: MoewColors.textSub)),
-          const SizedBox(height: 10),
+          Text('Còn ${p['remainingGrams'] ?? 0}g / ${p['weightGrams'] ?? 0}g', style: TextStyle(fontSize: 12, color: MoewColors.textSub)),
+          SizedBox(height: 10),
           TextField(controller: ctrl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Số gram thêm', suffixText: 'g')),
         ]),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Hủy')),
-          ElevatedButton(onPressed: () => Navigator.pop(ctx, true), style: ElevatedButton.styleFrom(backgroundColor: MoewColors.primary), child: const Text('Thêm', style: TextStyle(color: Colors.white))),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text('Hủy')),
+          ElevatedButton(onPressed: () => Navigator.pop(ctx, true), style: ElevatedButton.styleFrom(backgroundColor: MoewColors.primary), child: Text('Thêm', style: TextStyle(color: Colors.white))),
         ],
       ),
     );
@@ -156,16 +155,16 @@ class _FoodProductsScreenState extends State<FoodProductsScreen> {
         context: context,
         builder: (ctx) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(MoewRadius.lg)),
-          title: const Row(children: [
+          title: Row(children: [
             Icon(Icons.warning_amber, color: MoewColors.warning, size: 22),
             SizedBox(width: 8),
             Text('Vượt bao!', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
           ]),
           content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(res.data?['message'] ?? '', style: const TextStyle(fontSize: 13)),
-            const SizedBox(height: 10),
+            Text(res.data?['message'] ?? '', style: TextStyle(fontSize: 13)),
+            SizedBox(height: 10),
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: EdgeInsets.all(10),
               decoration: BoxDecoration(color: MoewColors.surface, borderRadius: BorderRadius.circular(MoewRadius.sm)),
               child: Column(children: [
                 _infoRow('Bao gốc', '${d['bagWeight'] ?? 0}g'),
@@ -173,15 +172,15 @@ class _FoodProductsScreenState extends State<FoodProductsScreen> {
                 _infoRow('Tối đa thêm', '${d['maxCanAdd'] ?? 0}g'),
               ]),
             ),
-            const SizedBox(height: 8),
-            const Text('Bấm "Thêm vượt bao" nếu bạn mua bao mới.', style: TextStyle(fontSize: 11, color: MoewColors.textSub)),
+            SizedBox(height: 8),
+            Text('Bấm "Thêm vượt bao" nếu bạn mua bao mới.', style: TextStyle(fontSize: 11, color: MoewColors.textSub)),
           ]),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Hủy')),
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text('Hủy')),
             ElevatedButton(
               onPressed: () => Navigator.pop(ctx, true),
               style: ElevatedButton.styleFrom(backgroundColor: MoewColors.warning),
-              child: const Text('Thêm vượt bao', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+              child: Text('Thêm vượt bao', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
             ),
           ],
         ),
@@ -209,21 +208,21 @@ class _FoodProductsScreenState extends State<FoodProductsScreen> {
 
   Widget _infoRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding: EdgeInsets.symmetric(vertical: 2),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text(label, style: const TextStyle(fontSize: 12, color: MoewColors.textSub)),
-        Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
+        Text(label, style: TextStyle(fontSize: 12, color: MoewColors.textSub)),
+        Text(value, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
       ]),
     );
   }
 
   Future<void> _delete(Map<String, dynamic> p) async {
     final confirmed = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(
-      title: const Text('Xóa sản phẩm?', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+      title: Text('Xóa sản phẩm?', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
       content: Text('Xóa "${p['name']}" khỏi kho?'),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Hủy')),
-        TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Xóa', style: TextStyle(color: MoewColors.danger))),
+        TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text('Hủy')),
+        TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text('Xóa', style: TextStyle(color: MoewColors.danger))),
       ],
     ));
     if (confirmed != true) return;
@@ -245,12 +244,12 @@ class _FoodProductsScreenState extends State<FoodProductsScreen> {
       builder: (ctx) => StatefulBuilder(builder: (ctx, setBS) => Padding(
         padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(ctx).viewInsets.bottom + 20),
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text('Chỉnh sửa sản phẩm', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-          const SizedBox(height: 14),
+          Text('Chỉnh sửa sản phẩm', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+          SizedBox(height: 14),
           TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Tên sản phẩm', prefixIcon: Icon(Icons.fastfood, size: 18))),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           TextField(controller: brandCtrl, decoration: const InputDecoration(labelText: 'Thương hiệu', prefixIcon: Icon(Icons.business, size: 18))),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           SizedBox(width: double.infinity, child: ElevatedButton(
             onPressed: saving ? null : () async {
               setBS(() => saving = true);
@@ -258,13 +257,13 @@ class _FoodProductsScreenState extends State<FoodProductsScreen> {
               if (nameCtrl.text.trim().isNotEmpty) body['name'] = nameCtrl.text.trim();
               if (brandCtrl.text.trim().isNotEmpty) body['brand'] = brandCtrl.text.trim();
               final res = await FeedingApi.updateProduct(p['id'], body);
-              if (!mounted) return;
+              if (!mounted || !ctx.mounted) return;
               setBS(() => saving = false);
               if (res.success) { Navigator.pop(ctx); MoewToast.show(context, message: 'Đã cập nhật!', type: ToastType.success); _fetch(); }
               else { MoewToast.show(ctx, message: res.error ?? 'Lỗi', type: ToastType.error); }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: MoewColors.primary, padding: const EdgeInsets.symmetric(vertical: 14)),
-            child: saving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Text('Lưu', style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
+            style: ElevatedButton.styleFrom(backgroundColor: MoewColors.primary, padding: EdgeInsets.symmetric(vertical: 14)),
+            child: saving ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text('Lưu', style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
           )),
         ]),
       )),
@@ -283,16 +282,16 @@ class _FoodProductsScreenState extends State<FoodProductsScreen> {
       builder: (ctx) => StatefulBuilder(builder: (ctx, setBS) => Padding(
         padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(ctx).viewInsets.bottom + 20),
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text('Hủy / giảm gram', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: MoewColors.danger)),
-          const SizedBox(height: 4),
-          Text('${p['name']} — Còn ${p['remainingGrams'] ?? 0}g', style: const TextStyle(fontSize: 12, color: MoewColors.textSub)),
-          const SizedBox(height: 14),
-          TextField(controller: gramsCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Số gram còn lại *', suffixText: 'g', prefixIcon: Icon(Icons.scale, size: 18))),
-          const SizedBox(height: 10),
-          TextField(controller: reasonCtrl, decoration: const InputDecoration(labelText: 'Lý do (ẩm mốc, hết hạn...)', prefixIcon: Icon(Icons.edit_note, size: 18))),
-          const SizedBox(height: 4),
-          const Text('Đặt 0g để hủy toàn bộ', style: TextStyle(fontSize: 11, color: MoewColors.textSub)),
-          const SizedBox(height: 16),
+          Text('Hủy / giảm gram', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: MoewColors.danger)),
+          SizedBox(height: 4),
+          Text('${p['name']} — Còn ${p['remainingGrams'] ?? 0}g', style: TextStyle(fontSize: 12, color: MoewColors.textSub)),
+          SizedBox(height: 14),
+          TextField(controller: gramsCtrl, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: 'Số gram còn lại *', suffixText: 'g', prefixIcon: Icon(Icons.scale, size: 18))),
+          SizedBox(height: 10),
+          TextField(controller: reasonCtrl, decoration: InputDecoration(labelText: 'Lý do (ẩm mốc, hết hạn...)', prefixIcon: Icon(Icons.edit_note, size: 18))),
+          SizedBox(height: 4),
+          Text('Đặt 0g để hủy toàn bộ', style: TextStyle(fontSize: 11, color: MoewColors.textSub)),
+          SizedBox(height: 16),
           SizedBox(width: double.infinity, child: ElevatedButton(
             onPressed: saving ? null : () async {
               if (gramsCtrl.text.trim().isEmpty) { MoewToast.show(ctx, message: 'Nhập số gram', type: ToastType.warning); return; }
@@ -300,7 +299,7 @@ class _FoodProductsScreenState extends State<FoodProductsScreen> {
               final body = <String, dynamic>{ 'remainingGrams': int.tryParse(gramsCtrl.text.trim()) ?? 0 };
               if (reasonCtrl.text.trim().isNotEmpty) body['reason'] = reasonCtrl.text.trim();
               final res = await FeedingApi.updateProduct(p['id'], body);
-              if (!mounted) return;
+              if (!mounted || !ctx.mounted) return;
               setBS(() => saving = false);
               if (res.success) {
                 Navigator.pop(ctx);
@@ -330,8 +329,8 @@ class _FoodProductsScreenState extends State<FoodProductsScreen> {
               }
               else { MoewToast.show(ctx, message: res.error ?? 'Lỗi', type: ToastType.error); }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: MoewColors.danger, padding: const EdgeInsets.symmetric(vertical: 14)),
-            child: saving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Text('Xác nhận', style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
+            style: ElevatedButton.styleFrom(backgroundColor: MoewColors.danger, padding: EdgeInsets.symmetric(vertical: 14)),
+            child: saving ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text('Xác nhận', style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
           )),
         ]),
       )),
@@ -342,18 +341,18 @@ class _FoodProductsScreenState extends State<FoodProductsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MoewColors.background,
-      appBar: const AppHeader(title: 'Kho thức ăn'),
+      appBar: AppHeader(title: 'Kho thức ăn'),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddProduct,
         backgroundColor: MoewColors.success,
-        child: const Icon(Icons.add, color: Colors.white),
+        child: Icon(Icons.add, color: Colors.white),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: MoewColors.primary))
+          ? Center(child: CircularProgressIndicator(color: MoewColors.primary))
           : _products.isEmpty
-              ? const EmptyState(icon: Icons.inventory_2, color: MoewColors.primary, message: 'Chưa có sản phẩm nào\nBấm + để thêm')
+              ? EmptyState(icon: Icons.inventory_2, color: MoewColors.primary, message: 'Chưa có sản phẩm nào\nBấm + để thêm')
               : ListView.builder(
-                  padding: const EdgeInsets.all(MoewSpacing.md),
+                  padding: EdgeInsets.all(MoewSpacing.md),
                   itemCount: _products.length,
                   itemBuilder: (_, i) => _buildProductCard(_products[i] as Map<String, dynamic>),
                 ),
@@ -368,51 +367,56 @@ class _FoodProductsScreenState extends State<FoodProductsScreen> {
     final plans = p['feedingPlans'] as List? ?? [];
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(color: MoewColors.white, borderRadius: BorderRadius.circular(MoewRadius.lg), boxShadow: MoewShadows.soft),
       child: Padding(
-        padding: const EdgeInsets.all(MoewSpacing.md),
+        padding: EdgeInsets.all(MoewSpacing.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           // Header
           Row(children: [
             Container(
               width: 44, height: 44,
               decoration: BoxDecoration(color: MoewColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(MoewRadius.md)),
-              child: const Icon(Icons.fastfood, color: MoewColors.primary, size: 22),
+              child: Icon(Icons.fastfood, color: MoewColors.primary, size: 22),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(p['name']?.toString() ?? '', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: MoewColors.textMain)),
-              if (p['brand'] != null) Text(p['brand'].toString(), style: const TextStyle(fontSize: 12, color: MoewColors.textSub)),
+              Text(p['name']?.toString() ?? '', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: MoewColors.textMain)),
+              if (p['brand'] != null) Text(p['brand'].toString(), style: TextStyle(fontSize: 12, color: MoewColors.textSub)),
             ])),
             PopupMenuButton<String>(
               onSelected: (v) {
-                if (v == 'restock') _restock(p);
-                else if (v == 'edit') _editProduct(p);
-                else if (v == 'dispose') _disposeProduct(p);
-                else if (v == 'delete') _delete(p);
+                if (v == 'restock') {
+                  _restock(p);
+                } else if (v == 'edit') {
+                  _editProduct(p);
+                } else if (v == 'dispose') {
+                  _disposeProduct(p);
+                } else if (v == 'delete') {
+                  _delete(p);
+                }
               },
               itemBuilder: (_) => [
-                const PopupMenuItem(value: 'edit', child: Row(children: [Icon(Icons.edit, size: 18, color: MoewColors.primary), SizedBox(width: 8), Text('Chỉnh sửa')])),
-                const PopupMenuItem(value: 'restock', child: Row(children: [Icon(Icons.add_circle, size: 18, color: MoewColors.success), SizedBox(width: 8), Text('Thêm gram')])),
-                const PopupMenuItem(value: 'dispose', child: Row(children: [Icon(Icons.remove_circle, size: 18, color: MoewColors.warning), SizedBox(width: 8), Text('Hủy / giảm gram')])),
-                const PopupMenuItem(value: 'delete', child: Row(children: [Icon(Icons.delete, size: 18, color: MoewColors.danger), SizedBox(width: 8), Text('Xóa')])),
+                PopupMenuItem(value: 'edit', child: Row(children: [Icon(Icons.edit, size: 18, color: MoewColors.primary), SizedBox(width: 8), Text('Chỉnh sửa')])),
+                PopupMenuItem(value: 'restock', child: Row(children: [Icon(Icons.add_circle, size: 18, color: MoewColors.success), SizedBox(width: 8), Text('Thêm gram')])),
+                PopupMenuItem(value: 'dispose', child: Row(children: [Icon(Icons.remove_circle, size: 18, color: MoewColors.warning), SizedBox(width: 8), Text('Hủy / giảm gram')])),
+                PopupMenuItem(value: 'delete', child: Row(children: [Icon(Icons.delete, size: 18, color: MoewColors.danger), SizedBox(width: 8), Text('Xóa')])),
               ],
             ),
           ]),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
 
           // Remaining gauge
           Row(children: [
             Text('Còn lại: ${remaining.toInt()}g / ${total.toInt()}g', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: isLow ? MoewColors.danger : MoewColors.textSub)),
-            if (isLow) ...[const SizedBox(width: 6), const Icon(Icons.warning_amber, size: 14, color: MoewColors.danger)],
+            if (isLow) ...[SizedBox(width: 6), Icon(Icons.warning_amber, size: 14, color: MoewColors.danger)],
           ]),
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(value: progress.toDouble(), minHeight: 6, backgroundColor: MoewColors.border, valueColor: AlwaysStoppedAnimation(isLow ? MoewColors.danger : MoewColors.success)),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
 
           // Nutrition info
           Wrap(spacing: 8, runSpacing: 4, children: [
@@ -423,20 +427,20 @@ class _FoodProductsScreenState extends State<FoodProductsScreen> {
 
           // Plans using this product
           if (plans.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text('Đang dùng cho ${plans.length} bé', style: const TextStyle(fontSize: 11, color: MoewColors.textSub)),
+            SizedBox(height: 8),
+            Text('Đang dùng cho ${plans.length} bé', style: TextStyle(fontSize: 11, color: MoewColors.textSub)),
           ],
 
           // AI analysis
           if (p['aiAnalysis'] != null && p['aiAnalysis'].toString().isNotEmpty) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: EdgeInsets.all(10),
               decoration: BoxDecoration(color: MoewColors.surface, borderRadius: BorderRadius.circular(MoewRadius.sm)),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                const Icon(Icons.auto_awesome, size: 14, color: MoewColors.accent),
-                const SizedBox(width: 6),
-                Expanded(child: Text(p['aiAnalysis'].toString(), style: const TextStyle(fontSize: 11, color: MoewColors.textSub), maxLines: 3, overflow: TextOverflow.ellipsis)),
+                Icon(Icons.auto_awesome, size: 14, color: MoewColors.accent),
+                SizedBox(width: 6),
+                Expanded(child: Text(p['aiAnalysis'].toString(), style: TextStyle(fontSize: 11, color: MoewColors.textSub), maxLines: 3, overflow: TextOverflow.ellipsis)),
               ]),
             ),
           ],
@@ -447,12 +451,12 @@ class _FoodProductsScreenState extends State<FoodProductsScreen> {
 
   Widget _chip(String label, IconData icon) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(color: MoewColors.surface, borderRadius: BorderRadius.circular(MoewRadius.full)),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 12, color: MoewColors.primary),
-        const SizedBox(width: 4),
-        Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: MoewColors.textMain)),
+        SizedBox(width: 4),
+        Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: MoewColors.textMain)),
       ]),
     );
   }

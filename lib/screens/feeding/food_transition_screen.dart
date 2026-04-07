@@ -67,12 +67,12 @@ class _FoodTransitionScreenState extends State<FoodTransitionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MoewColors.background,
-      appBar: const AppHeader(title: 'Chuyển đổi thức ăn'),
+      appBar: AppHeader(title: 'Chuyển đổi thức ăn'),
       body: _loadingInit
-          ? const Center(child: CircularProgressIndicator(color: MoewColors.primary))
+          ? Center(child: CircularProgressIndicator(color: MoewColors.primary))
           : _products.length < 2
-              ? const EmptyState(icon: Icons.swap_horiz, color: MoewColors.primary, message: 'Cần ít nhất 2 sản phẩm\ntrong kho để chuyển đổi')
-              : ListView(padding: const EdgeInsets.all(MoewSpacing.md), children: [
+              ? EmptyState(icon: Icons.swap_horiz, color: MoewColors.primary, message: 'Cần ít nhất 2 sản phẩm\ntrong kho để chuyển đổi')
+              : ListView(padding: EdgeInsets.all(MoewSpacing.md), children: [
                   if (_result == null) ..._buildForm() else ..._buildResult(),
                 ]),
     );
@@ -82,18 +82,22 @@ class _FoodTransitionScreenState extends State<FoodTransitionScreen> {
     return [
       _sectionLabel('Thức ăn CŨ'),
       _productSelector(_oldProductId, (v) => setState(() => _oldProductId = v)),
-      const SizedBox(height: 12),
-      const Center(child: Icon(Icons.arrow_downward, color: MoewColors.primary, size: 28)),
-      const SizedBox(height: 4),
+      SizedBox(height: 12),
+      Center(child: Icon(Icons.arrow_downward, color: MoewColors.primary, size: 28)),
+      SizedBox(height: 4),
       _sectionLabel('Thức ăn MỚI'),
       _productSelector(_newProductId, (v) => setState(() => _newProductId = v)),
-      const SizedBox(height: 16),
+      SizedBox(height: 16),
 
       _sectionLabel('Chọn bé'),
       Wrap(spacing: 8, runSpacing: 8, children: _pets.map<Widget>((p) {
         final active = _selectedPets.contains(p['id']);
         return GestureDetector(
-          onTap: () => setState(() { if (active) _selectedPets.remove(p['id']); else _selectedPets.add(p['id']); }),
+          onTap: () => setState(() { if (active) {
+            _selectedPets.remove(p['id']);
+          } else {
+            _selectedPets.add(p['id']);
+          } }),
           child: Chip(
             avatar: Icon(active ? Icons.check_circle : Icons.pets, size: 16, color: active ? MoewColors.success : MoewColors.textSub),
             label: Text(p['name'] ?? '', style: TextStyle(fontWeight: FontWeight.w600, color: active ? MoewColors.success : MoewColors.textSub)),
@@ -102,20 +106,20 @@ class _FoodTransitionScreenState extends State<FoodTransitionScreen> {
           ),
         );
       }).toList()),
-      const SizedBox(height: 16),
+      SizedBox(height: 16),
 
       _sectionLabel('Số ngày chuyển đổi: $_transitionDays'),
       Slider(value: _transitionDays.toDouble(), min: 3, max: 14, divisions: 11, label: '$_transitionDays ngày',
         activeColor: MoewColors.primary,
         onChanged: (v) => setState(() => _transitionDays = v.round()),
       ),
-      const SizedBox(height: 16),
+      SizedBox(height: 16),
 
       SizedBox(width: double.infinity, child: ElevatedButton.icon(
         onPressed: _generating ? null : _generate,
-        icon: _generating ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Icon(Icons.auto_awesome, size: 18, color: Colors.white),
-        label: Text(_generating ? 'Đang tạo lịch...' : 'Tạo lịch chuyển đổi', style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
-        style: ElevatedButton.styleFrom(backgroundColor: MoewColors.success, padding: const EdgeInsets.symmetric(vertical: 14)),
+        icon: _generating ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Icon(Icons.auto_awesome, size: 18, color: Colors.white),
+        label: Text(_generating ? 'Đang tạo lịch...' : 'Tạo lịch chuyển đổi', style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
+        style: ElevatedButton.styleFrom(backgroundColor: MoewColors.success, padding: EdgeInsets.symmetric(vertical: 14)),
       )),
     ];
   }
@@ -129,26 +133,26 @@ class _FoodTransitionScreenState extends State<FoodTransitionScreen> {
     return [
       // Title
       Container(
-        padding: const EdgeInsets.all(14),
+        padding: EdgeInsets.all(14),
         decoration: BoxDecoration(color: MoewColors.primary.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(MoewRadius.lg)),
         child: Row(children: [
-          const Icon(Icons.swap_horiz, color: MoewColors.primary),
-          const SizedBox(width: 8),
-          Expanded(child: Text('$oldName → $newName', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700))),
+          Icon(Icons.swap_horiz, color: MoewColors.primary),
+          SizedBox(width: 8),
+          Expanded(child: Text('$oldName → $newName', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700))),
         ]),
       ),
-      const SizedBox(height: 12),
+      SizedBox(height: 12),
 
       // Warnings
       ...warnings.map<Widget>((w) {
         final color = w['level'] == 'danger' ? MoewColors.danger : w['level'] == 'warning' ? MoewColors.warning : MoewColors.primary;
         return Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          padding: const EdgeInsets.all(10),
+          margin: EdgeInsets.only(bottom: 8),
+          padding: EdgeInsets.all(10),
           decoration: BoxDecoration(color: color.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(MoewRadius.sm), border: Border.all(color: color.withValues(alpha: 0.3))),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Icon(w['level'] == 'danger' ? Icons.error : Icons.info, size: 16, color: color),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             Expanded(child: Text(w['message']?.toString() ?? '', style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w600))),
           ]),
         );
@@ -158,12 +162,12 @@ class _FoodTransitionScreenState extends State<FoodTransitionScreen> {
       ...petPlans.map<Widget>((pp) {
         final schedule = pp['schedule'] as List? ?? [];
         return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const SizedBox(height: 8),
-          Text('${pp['petName']} (${pp['dailyCalories']} kcal/ngày)', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
+          Text('${pp['petName']} (${pp['dailyCalories']} kcal/ngày)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+          SizedBox(height: 8),
           ...schedule.map<Widget>((day) => Container(
-            margin: const EdgeInsets.only(bottom: 4),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            margin: EdgeInsets.only(bottom: 4),
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: day['newPercent'] == 100 ? MoewColors.success.withValues(alpha: 0.08) : MoewColors.white,
               borderRadius: BorderRadius.circular(MoewRadius.sm),
@@ -173,19 +177,19 @@ class _FoodTransitionScreenState extends State<FoodTransitionScreen> {
               Container(
                 width: 32, height: 32,
                 decoration: BoxDecoration(color: MoewColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(MoewRadius.sm)),
-                child: Center(child: Text('${day['day']}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: MoewColors.primary))),
+                child: Center(child: Text('${day['day']}', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: MoewColors.primary))),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(day['label']?.toString() ?? '', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
-                const SizedBox(height: 2),
+                Text(day['label']?.toString() ?? '', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
+                SizedBox(height: 2),
                 Row(children: [
                   Expanded(child: ClipRRect(
                     borderRadius: BorderRadius.circular(3),
-                    child: LinearProgressIndicator(value: (day['newPercent'] ?? 0) / 100.0, minHeight: 6, backgroundColor: MoewColors.warning.withValues(alpha: 0.3), valueColor: const AlwaysStoppedAnimation(MoewColors.success)),
+                    child: LinearProgressIndicator(value: (day['newPercent'] ?? 0) / 100.0, minHeight: 6, backgroundColor: MoewColors.warning.withValues(alpha: 0.3), valueColor: AlwaysStoppedAnimation(MoewColors.success)),
                   )),
-                  const SizedBox(width: 8),
-                  Text('${day['newPercent']}%', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: MoewColors.success)),
+                  SizedBox(width: 8),
+                  Text('${day['newPercent']}%', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: MoewColors.success)),
                 ]),
               ])),
             ]),
@@ -193,10 +197,10 @@ class _FoodTransitionScreenState extends State<FoodTransitionScreen> {
         ]);
       }),
 
-      const SizedBox(height: 16),
+      SizedBox(height: 16),
       SizedBox(width: double.infinity, child: OutlinedButton(
         onPressed: () => setState(() => _result = null),
-        child: const Text('Tạo lại'),
+        child: Text('Tạo lại'),
       )),
     ];
   }
@@ -209,8 +213,8 @@ class _FoodTransitionScreenState extends State<FoodTransitionScreen> {
         return GestureDetector(
           onTap: () => onSelect(p['id']),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            margin: const EdgeInsets.only(right: 8),
+            padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            margin: EdgeInsets.only(right: 8),
             decoration: BoxDecoration(
               color: active ? MoewColors.primary.withValues(alpha: 0.1) : MoewColors.white,
               borderRadius: BorderRadius.circular(MoewRadius.md),
@@ -228,8 +232,8 @@ class _FoodTransitionScreenState extends State<FoodTransitionScreen> {
 
   Widget _sectionLabel(String text) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Text(text, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: MoewColors.textSub, letterSpacing: 0.5)),
+      padding: EdgeInsets.only(bottom: 6),
+      child: Text(text, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: MoewColors.textSub, letterSpacing: 0.5)),
     );
   }
 }

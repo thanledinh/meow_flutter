@@ -1,5 +1,8 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../config/theme.dart';
 import '../../api/auth_api.dart';
@@ -7,6 +10,7 @@ import '../../api/api_client.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/toast.dart';
 import '../../widgets/common_widgets.dart';
+import '../map/location_picker_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -30,6 +34,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _zaloCtrl = TextEditingController();
   String? _gender;
   String? _dateOfBirth;
+  double? _latitude;
+  double? _longitude;
 
   @override
   void initState() {
@@ -59,6 +65,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _zaloCtrl.text = p['zalo'] ?? '';
           _gender = p['gender'];
           _dateOfBirth = p['dateOfBirth']?.toString().substring(0, 10);
+          _latitude = double.tryParse(p['latitude']?.toString() ?? '');
+          _longitude = double.tryParse(p['longitude']?.toString() ?? '');
         });
       }
     }
@@ -81,6 +89,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     };
     if (_gender != null) data['gender'] = _gender;
     if (_dateOfBirth != null) data['dateOfBirth'] = _dateOfBirth;
+    if (_latitude != null) data['latitude'] = _latitude;
+    if (_longitude != null) data['longitude'] = _longitude;
     final res = await AuthApi.updateProfile(data);
     if (!mounted) return;
     if (res.success) {
@@ -96,6 +106,117 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return avatar.startsWith('http') ? avatar : '${ApiConfig.baseUrl}$avatar';
   }
 
+  void _showAvatarPicker() {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Text('Cập nhật ảnh đại diện', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            ),
+            ListTile(
+              leading: Container(padding: EdgeInsets.all(8), decoration: BoxDecoration(color: Colors.grey.shade200, shape: BoxShape.circle), child: Icon(Icons.photo_library, color: Colors.black87)),
+              title: Text('Chọn từ thư viện'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickAvatar(ImageSource.gallery);
+              },
+            ),
+            ListTile(
+              leading: Container(padding: EdgeInsets.all(8), decoration: BoxDecoration(color: Colors.grey.shade200, shape: BoxShape.circle), child: Icon(Icons.camera_alt, color: Colors.black87)),
+              title: Text('Chụp ảnh mới'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickAvatar(ImageSource.camera);
+              },
+            ),
+            SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickAvatar(ImageSource source) async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: source, imageQuality: 70);
+      
+      if (image != null) {
+        if (!mounted) return;
+        // Hiển thị dialog xác nhận ảnh
+        bool? confirm = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text('Xác nhận ảnh đại diện', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(100),
+                  child: Image.file(
+                    File(image.path), 
+                    width: 150, 
+                    height: 150, 
+                    fit: BoxFit.cover
+                  ),
+                ),
+                SizedBox(height: 16),
+                Text('Bạn muốn dùng ảnh này làm avatar?', textAlign: TextAlign.center),
+              ],
+            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            actionsAlignment: MainAxisAlignment.spaceEvenly,
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text('Hủy', style: TextStyle(color: Colors.red, fontSize: 16)),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: MoewColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                ),
+                child: Text('Đồng ý', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+              ),
+            ],
+          ),
+        );
+
+        if (confirm != true) return; // Người dùng hủy
+
+        setState(() => _loading = true);
+        final bytes = await image.readAsBytes();
+        final base64String = 'data:image/jpeg;base64,' + base64Encode(bytes);
+        
+        final res = await AuthApi.uploadAvatar(base64String);
+        if (!mounted) return;
+        
+        if (res.success) {
+          MoewToast.show(context, message: 'Đã cập nhật ảnh đại diện!', type: ToastType.success);
+          await _fetchProfile();
+          if (_profile != null) {
+            Provider.of<AuthProvider>(context, listen: false).updateUser(_profile!);
+          }
+        } else {
+          MoewToast.show(context, message: res.error ?? 'Lỗi tải ảnh', type: ToastType.error);
+        }
+        setState(() => _loading = false);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+      MoewToast.show(context, message: 'Thao tác bị hủy hoặc lỗi: $e', type: ToastType.error);
+    }
+  }
+
   @override
   void dispose() {
     _nameCtrl.dispose(); _bioCtrl.dispose(); _phoneCtrl.dispose();
@@ -109,44 +230,74 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MoewColors.background,
-      appBar: const AppHeader(title: 'Hồ sơ cá nhân'),
+      appBar: AppHeader(title: 'Hồ sơ cá nhân'),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: MoewColors.primary))
+          ? Center(child: CircularProgressIndicator(color: MoewColors.primary))
           : _profile == null
-              ? const EmptyState(icon: Icons.person_off, color: MoewColors.textSub, message: 'Không thể tải profile')
+              ? EmptyState(icon: Icons.person_off, color: MoewColors.textSub, message: 'Không thể tải profile')
               : RefreshIndicator(
                   onRefresh: _fetchProfile,
                   color: MoewColors.primary,
                   child: ListView(
-                    padding: const EdgeInsets.all(MoewSpacing.lg),
+                    padding: EdgeInsets.all(MoewSpacing.lg),
                     children: [
                       // Avatar
                       Center(
                         child: Column(
                           children: [
-                            _profile!['avatar'] != null
-                                ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(50),
-                                    child: CachedNetworkImage(
-                                      imageUrl: _fullAvatar(_profile!['avatar']),
-                                      width: 100, height: 100, fit: BoxFit.cover,
+                            GestureDetector(
+                              onTap: _showAvatarPicker,
+                              child: Stack(
+                                children: [
+                                  _profile!['avatar'] != null
+                                      ? ClipRRect(
+                                          borderRadius: BorderRadius.circular(50),
+                                          child: CachedNetworkImage(
+                                            imageUrl: _fullAvatar(_profile!['avatar']),
+                                            width: 100, height: 100, fit: BoxFit.cover,
+                                          ),
+                                        )
+                                      : Container(
+                                          width: 100, height: 100,
+                                          decoration: BoxDecoration(
+                                            color: MoewColors.primary,
+                                            borderRadius: BorderRadius.circular(50),
+                                          ),
+                                          child: Icon(Icons.person, size: 48, color: Colors.white),
+                                        ),
+                                  Positioned(
+                                    bottom: 0,
+                                    right: 4,
+                                    child: Container(
+                                      padding: EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(color: Colors.grey.shade300, width: 1.5),
+                                        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                                      ),
+                                      child: Icon(Icons.camera_alt, size: 16, color: MoewColors.primary),
                                     ),
-                                  )
-                                : Container(
-                                    width: 100, height: 100,
-                                    decoration: BoxDecoration(
-                                      color: MoewColors.primary,
-                                      borderRadius: BorderRadius.circular(50),
-                                    ),
-                                    child: const Icon(Icons.person, size: 48, color: Colors.white),
                                   ),
-                            const SizedBox(height: 12),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 12),
                             Text(_profile!['displayName'] ?? '', style: MoewTextStyles.h2),
                             Text(_profile!['email'] ?? '', style: MoewTextStyles.caption),
+                            SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _statBox('${_profile!['followingCount'] ?? 0}', 'Đang theo dõi'),
+                                Container(width: 1, height: 30, color: MoewColors.border, margin: EdgeInsets.symmetric(horizontal: 20)),
+                                _statBox('${_profile!['followerCount'] ?? 0}', 'Người theo dõi'),
+                              ],
+                            ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: MoewSpacing.xl),
+                      SizedBox(height: MoewSpacing.xl),
 
                       // THÔNG TIN CƠ BẢN
                       _sectionTitle('THÔNG TIN CƠ BẢN'),
@@ -156,10 +307,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         _field('Số điện thoại', _phoneCtrl, Icons.phone_outlined, keyboardType: TextInputType.phone),
                         // Gender selector
                         Padding(
-                          padding: const EdgeInsets.only(bottom: MoewSpacing.md),
+                          padding: EdgeInsets.only(bottom: MoewSpacing.md),
                           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                             Text('Giới tính', style: MoewTextStyles.label),
-                            const SizedBox(height: MoewSpacing.sm),
+                            SizedBox(height: MoewSpacing.sm),
                             Wrap(spacing: 8, children: [
                               _genderChip('Nam', 'male'),
                               _genderChip('Nữ', 'female'),
@@ -169,10 +320,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         // Date of birth
                         Padding(
-                          padding: const EdgeInsets.only(bottom: MoewSpacing.md),
+                          padding: EdgeInsets.only(bottom: MoewSpacing.md),
                           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                             Text('Ngày sinh', style: MoewTextStyles.label),
-                            const SizedBox(height: MoewSpacing.sm),
+                            SizedBox(height: MoewSpacing.sm),
                             GestureDetector(
                               onTap: () async {
                                 final date = await showDatePicker(
@@ -184,11 +335,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 if (date != null) setState(() => _dateOfBirth = date.toIso8601String().substring(0, 10));
                               },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                                 decoration: BoxDecoration(color: MoewColors.surface, borderRadius: BorderRadius.circular(MoewRadius.md)),
                                 child: Row(children: [
-                                  const Icon(Icons.cake_outlined, size: 20, color: MoewColors.textSub),
-                                  const SizedBox(width: 12),
+                                  Icon(Icons.cake_outlined, size: 20, color: MoewColors.textSub),
+                                  SizedBox(width: 12),
                                   Text(_dateOfBirth ?? 'Chưa chọn', style: TextStyle(fontSize: 15, color: _dateOfBirth != null ? MoewColors.textMain : MoewColors.textSub)),
                                 ]),
                               ),
@@ -198,7 +349,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ]),
 
                       // ĐỊA CHỈ
-                      _sectionTitle('ĐỊA CHỈ'),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _sectionTitle('ĐỊA CHỈ'),
+                          TextButton.icon(
+                            onPressed: () async {
+                              final result = await Navigator.push(context, MaterialPageRoute(
+                                builder: (_) => LocationPickerScreen(
+                                  initialLat: _latitude,
+                                  initialLng: _longitude,
+                                )
+                              ));
+                              if (result != null && result is Map<String, dynamic>) {
+                                setState(() {
+                                  _addressCtrl.text = result['address'] ?? '';
+                                  _wardCtrl.text = result['ward'] ?? '';
+                                  _districtCtrl.text = result['district'] ?? '';
+                                  _cityCtrl.text = result['city'] ?? '';
+                                  _latitude = result['latitude'];
+                                  _longitude = result['longitude'];
+                                });
+                              }
+                            },
+                            icon: Icon(Icons.map, size: 18, color: MoewColors.primary),
+                            label: Text('Mở bản đồ', style: TextStyle(color: MoewColors.primary, fontWeight: FontWeight.bold)),
+                          )
+                        ],
+                      ),
                       _formCard([
                         _field('Địa chỉ', _addressCtrl, Icons.location_on_outlined),
                         _field('Phường/Xã', _wardCtrl, Icons.map_outlined),
@@ -220,20 +398,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         _field('Zalo', _zaloCtrl, Icons.chat_outlined, keyboardType: TextInputType.phone),
                       ]),
 
-                      const SizedBox(height: MoewSpacing.md),
+                      SizedBox(height: MoewSpacing.md),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: _saveProfile,
-                          style: ElevatedButton.styleFrom(backgroundColor: MoewColors.primary, padding: const EdgeInsets.symmetric(vertical: 16)),
+                          style: ElevatedButton.styleFrom(backgroundColor: MoewColors.primary, padding: EdgeInsets.symmetric(vertical: 16)),
                           child: Text('Lưu thay đổi', style: MoewTextStyles.button),
                         ),
                       ),
-                      const SizedBox(height: MoewSpacing.lg),
+                      SizedBox(height: MoewSpacing.lg),
 
                       // eKYC & Delete
                       _actionTile('Xác minh danh tính (eKYC)', Icons.verified_outlined, MoewColors.success, () => Navigator.pushNamed(context, '/ekyc')),
-                      const SizedBox(height: MoewSpacing.sm),
+                      SizedBox(height: MoewSpacing.sm),
                       _actionTile('Xóa tài khoản', Icons.delete_outline, MoewColors.danger, _confirmDelete),
                     ],
                   ),
@@ -241,13 +419,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Widget _statBox(String value, String label) {
+    return Column(
+      children: [
+        Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: MoewColors.textMain)),
+        SizedBox(height: 2),
+        Text(label, style: TextStyle(fontSize: 12, color: MoewColors.textSub, fontWeight: FontWeight.w500)),
+      ],
+    );
+  }
+
   Widget _sectionTitle(String title) => Padding(
-    padding: const EdgeInsets.only(bottom: MoewSpacing.sm, top: MoewSpacing.sm),
+    padding: EdgeInsets.only(bottom: MoewSpacing.sm, top: MoewSpacing.sm),
     child: Text(title, style: MoewTextStyles.label),
   );
 
   Widget _formCard(List<Widget> children) => Container(
-    padding: const EdgeInsets.all(MoewSpacing.md),
+    padding: EdgeInsets.all(MoewSpacing.md),
     decoration: BoxDecoration(color: MoewColors.white, borderRadius: BorderRadius.circular(MoewRadius.lg), boxShadow: MoewShadows.card),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
   );
@@ -257,7 +445,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return GestureDetector(
       onTap: () => setState(() => _gender = value),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: active ? MoewColors.primary : MoewColors.surface,
           borderRadius: BorderRadius.circular(MoewRadius.md),
@@ -269,12 +457,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _field(String label, TextEditingController ctrl, IconData icon, {TextInputType? keyboardType}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: MoewSpacing.md),
+      padding: EdgeInsets.only(bottom: MoewSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label, style: MoewTextStyles.label),
-          const SizedBox(height: MoewSpacing.sm),
+          SizedBox(height: MoewSpacing.sm),
           TextField(
             controller: ctrl,
             keyboardType: keyboardType,
@@ -289,7 +477,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(MoewSpacing.md),
+        padding: EdgeInsets.all(MoewSpacing.md),
         decoration: BoxDecoration(
           color: MoewColors.white,
           borderRadius: BorderRadius.circular(MoewRadius.lg),
@@ -305,7 +493,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               child: Icon(icon, size: 20, color: color),
             ),
-            const SizedBox(width: MoewSpacing.md),
+            SizedBox(width: MoewSpacing.md),
             Expanded(child: Text(title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: color))),
             Icon(Icons.chevron_right, size: 20, color: color),
           ],
@@ -318,10 +506,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Xóa tài khoản'),
-        content: const Text('Hành động này không thể hoàn tác. Bạn chắc chắn?'),
+        title: Text('Xóa tài khoản'),
+        content: Text('Hành động này không thể hoàn tác. Bạn chắc chắn?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Hủy')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('Hủy')),
           TextButton(
             onPressed: () async {
               Navigator.pop(ctx);
@@ -334,7 +522,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 MoewToast.show(context, message: res.error ?? 'Lỗi', type: ToastType.error);
               }
             },
-            child: const Text('Xóa', style: TextStyle(color: MoewColors.danger)),
+            child: Text('Xóa', style: TextStyle(color: MoewColors.danger)),
           ),
         ],
       ),

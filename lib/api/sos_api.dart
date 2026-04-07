@@ -16,8 +16,8 @@ class SosApi {
   static Future<ApiResponse> complete(dynamic sosId,
           {double? totalCost, bool? payByWallet}) =>
       _client.post(Endpoints.sosComplete(sosId), {
-        if (totalCost != null) 'totalCost': totalCost,
-        if (payByWallet != null) 'payByWallet': payByWallet,
+        'totalCost': ?totalCost,
+        'payByWallet': ?payByWallet,
       });
 
   /// Hủy SOS

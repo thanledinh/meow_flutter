@@ -1,0 +1,18 @@
+﻿Analyzing moew_flutter...
+
+warning - lib\screens\settings\settings_screen.dart:15:8 - The value of the field '_notifEnabled' isn't used. Try removing the field, or using it. - unused_field
+warning - lib\screens\settings\settings_screen.dart:16:8 - The value of the field '_notifLoading' isn't used. Try removing the field, or using it. - unused_field
+warning - lib\screens\settings\settings_screen.dart:37:16 - The declaration '_toggleNotif' isn't referenced. Try removing the declaration of '_toggleNotif'. - unused_element
+   info - fix_const.dart:6:5 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - fix_const.dart:27:9 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - fix_const2.dart:22:11 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - lib\api\preferences_api.dart:13:7 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - lib\api\preferences_api.dart:23:7 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - lib\providers\preferences_provider.dart:28:9 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - lib\screens\feeding\feeding_today_screen.dart:204:43 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - lib\screens\feeding\feeding_today_screen.dart:205:41 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - lib\screens\feeding\feeding_today_screen.dart:206:41 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - lib\screens\feeding\feeding_today_screen.dart:207:53 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - lib\screens\settings\settings_screen.dart:220:49 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+
+14 issues found.

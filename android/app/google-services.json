@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "313530042985-ikappgqb5ahve6jv4cpa3ue0iedutph9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.moew.app",
+            "certificate_hash": "98c5b684149889612fc51dc825a4aafc04e2b00b"
+          }
+        },
+        {
           "client_id": "313530042985-rnm080k86jcgdtuc074jmla612hfie2a.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -39,7 +47,6 @@
               "client_type": 3
             }
           ]
-          
         }
       }
     }

@@ -309,47 +309,47 @@ class _GuardianMapScreenState extends State<GuardianMapScreen> {
           child: Column(children: [
             Row(children: [
               _circleBtn(Icons.arrow_back, () => Navigator.pop(context)),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Expanded(child: Container(
                 height: 46,
-                padding: const EdgeInsets.symmetric(horizontal: 14),
+                padding: EdgeInsets.symmetric(horizontal: 14),
                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(MoewRadius.lg), boxShadow: MoewShadows.card),
                 child: Row(children: [
-                  const Icon(Icons.search, size: 18, color: MoewColors.textSub),
-                  const SizedBox(width: 8),
+                  Icon(Icons.search, size: 18, color: MoewColors.textSub),
+                  SizedBox(width: 8),
                   Expanded(child: TextField(
                     controller: _searchCtrl,
                     onChanged: _onSearch,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Tìm địa chỉ, phòng khám...',
                       border: InputBorder.none,
                       isDense: true,
                       contentPadding: EdgeInsets.zero,
                     ),
-                    style: const TextStyle(fontSize: 15, color: MoewColors.textMain),
+                    style: TextStyle(fontSize: 15, color: MoewColors.textMain),
                   )),
-                  if (_searching) const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: MoewColors.primary)),
+                  if (_searching) SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: MoewColors.primary)),
                   if (!_searching && _searchCtrl.text.isNotEmpty)
-                    GestureDetector(onTap: _clearAll, child: const Icon(Icons.cancel, size: 20, color: MoewColors.textSub)),
+                    GestureDetector(onTap: _clearAll, child: Icon(Icons.cancel, size: 20, color: MoewColors.textSub)),
                 ]),
               )),
             ]),
             if (_results.isNotEmpty) Container(
-              margin: const EdgeInsets.only(top: 4, left: 52),
+              margin: EdgeInsets.only(top: 4, left: 52),
               decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(MoewRadius.lg), boxShadow: MoewShadows.card),
               constraints: const BoxConstraints(maxHeight: 300),
               child: ListView.separated(
                 shrinkWrap: true,
                 padding: EdgeInsets.zero,
                 itemCount: _results.length,
-                separatorBuilder: (_, __) => Divider(height: 1, color: MoewColors.border.withValues(alpha: 0.3)),
+                separatorBuilder: (_, _) => Divider(height: 1, color: MoewColors.border.withValues(alpha: 0.3)),
                 itemBuilder: (_, i) {
                   final item = _results[i] as Map<String, dynamic>;
                   return ListTile(
                     dense: true,
-                    leading: const Icon(Icons.location_on_outlined, size: 18, color: MoewColors.primary),
-                    title: Text(item['text']?.toString() ?? '', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis),
-                    subtitle: Text(item['place_name']?.toString() ?? '', style: const TextStyle(fontSize: 12, color: MoewColors.textSub), overflow: TextOverflow.ellipsis),
+                    leading: Icon(Icons.location_on_outlined, size: 18, color: MoewColors.primary),
+                    title: Text(item['text']?.toString() ?? '', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis),
+                    subtitle: Text(item['place_name']?.toString() ?? '', style: TextStyle(fontSize: 12, color: MoewColors.textSub), overflow: TextOverflow.ellipsis),
                     onTap: () => _selectPlace(item),
                   );
                 },
@@ -374,7 +374,7 @@ class _GuardianMapScreenState extends State<GuardianMapScreen> {
           Positioned(
             bottom: 16, left: 16, right: 16,
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16),
               decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(MoewRadius.xl), boxShadow: MoewShadows.card),
               constraints: const BoxConstraints(maxHeight: 340),
               child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -383,21 +383,21 @@ class _GuardianMapScreenState extends State<GuardianMapScreen> {
                   ..._travelModes.map((m) => GestureDetector(
                     onTap: () => _switchMode(m.key),
                     child: Container(
-                      margin: const EdgeInsets.only(right: 6),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      margin: EdgeInsets.only(right: 6),
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
                         color: _travelMode == m.key ? m.color.withValues(alpha: 0.1) : Colors.transparent,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(mainAxisSize: MainAxisSize.min, children: [
                         Icon(m.icon, size: 18, color: _travelMode == m.key ? m.color : MoewColors.textSub),
-                        const SizedBox(width: 4),
+                        SizedBox(width: 4),
                         Text(m.label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: _travelMode == m.key ? m.color : MoewColors.textSub)),
                       ]),
                     ),
                   )),
-                  const Spacer(),
-                  GestureDetector(onTap: _clearAll, child: const Icon(Icons.close, size: 20, color: MoewColors.textSub)),
+                  Spacer(),
+                  GestureDetector(onTap: _clearAll, child: Icon(Icons.close, size: 20, color: MoewColors.textSub)),
                 ]),
                 const Divider(height: 16),
 
@@ -405,25 +405,25 @@ class _GuardianMapScreenState extends State<GuardianMapScreen> {
                 Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                   Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text(_fmtDuration(_routeInfo!['duration']), style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: _travelModes.firstWhere((m) => m.key == _travelMode).color)),
-                    Text(_fmtDistance(_routeInfo!['distance']), style: const TextStyle(fontSize: 13, color: MoewColors.textSub, fontWeight: FontWeight.w600)),
+                    Text(_fmtDistance(_routeInfo!['distance']), style: TextStyle(fontSize: 13, color: MoewColors.textSub, fontWeight: FontWeight.w600)),
                   ]),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(color: MoewColors.surface, borderRadius: BorderRadius.circular(12)),
                     child: Row(mainAxisSize: MainAxisSize.min, children: [
-                      const Icon(Icons.access_time, size: 14, color: MoewColors.textSub),
-                      const SizedBox(width: 4),
-                      Text('Đến lúc ${_fmtETA(_routeInfo!['eta'])}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: MoewColors.textMain)),
+                      Icon(Icons.access_time, size: 14, color: MoewColors.textSub),
+                      SizedBox(width: 4),
+                      Text('Đến lúc ${_fmtETA(_routeInfo!['eta'])}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: MoewColors.textMain)),
                     ]),
                   ),
                 ]),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
 
                 // Destination
                 Row(children: [
                   Container(width: 10, height: 10, decoration: BoxDecoration(color: MoewColors.danger, borderRadius: BorderRadius.circular(5))),
-                  const SizedBox(width: 10),
-                  Expanded(child: Text(_selectedPlace!['name'], style: const TextStyle(fontSize: 13, color: MoewColors.textMain), maxLines: 2)),
+                  SizedBox(width: 10),
+                  Expanded(child: Text(_selectedPlace!['name'], style: TextStyle(fontSize: 13, color: MoewColors.textMain), maxLines: 2)),
                 ]),
 
                 // Steps
@@ -437,16 +437,16 @@ class _GuardianMapScreenState extends State<GuardianMapScreen> {
                       itemBuilder: (_, i) {
                         final step = _routeSteps[i];
                         return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          padding: EdgeInsets.symmetric(vertical: 4),
                           child: Row(children: [
                             Container(
                               width: 28, height: 28,
                               decoration: BoxDecoration(color: MoewColors.tintBlue, borderRadius: BorderRadius.circular(14)),
                               child: Icon(_stepIcon(step['type'], step['modifier']), size: 14, color: MoewColors.primary),
                             ),
-                            const SizedBox(width: 8),
-                            Expanded(child: Text(step['instruction'], style: const TextStyle(fontSize: 12, color: MoewColors.textMain), maxLines: 2)),
-                            Text(_fmtDistance(step['distance']), style: const TextStyle(fontSize: 11, color: MoewColors.textSub, fontWeight: FontWeight.w600)),
+                            SizedBox(width: 8),
+                            Expanded(child: Text(step['instruction'], style: TextStyle(fontSize: 12, color: MoewColors.textMain), maxLines: 2)),
+                            Text(_fmtDistance(step['distance']), style: TextStyle(fontSize: 11, color: MoewColors.textSub, fontWeight: FontWeight.w600)),
                           ]),
                         );
                       },
@@ -454,7 +454,7 @@ class _GuardianMapScreenState extends State<GuardianMapScreen> {
                   ),
                 ],
 
-                if (_loadingRoute) const Padding(
+                if (_loadingRoute) Padding(
                   padding: EdgeInsets.only(top: 8),
                   child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: MoewColors.primary)),
                 ),

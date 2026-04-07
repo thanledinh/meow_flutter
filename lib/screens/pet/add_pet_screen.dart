@@ -97,90 +97,90 @@ class _AddPetScreenState extends State<AddPetScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MoewColors.background,
-      appBar: const AppHeader(title: 'Thêm Boss Mèo'),
-      body: ListView(padding: const EdgeInsets.all(MoewSpacing.lg), children: [
+      appBar: AppHeader(title: 'Thêm Boss Mèo'),
+      body: ListView(padding: EdgeInsets.all(MoewSpacing.lg), children: [
         // ── Avatar picker ──
         _buildAvatarPicker(),
-        const SizedBox(height: MoewSpacing.lg),
+        SizedBox(height: MoewSpacing.lg),
 
         // ── Name ──
         _label('TÊN BOSS'),
-        const SizedBox(height: MoewSpacing.sm),
+        SizedBox(height: MoewSpacing.sm),
         TextField(
           controller: _nameCtrl,
-          decoration: const InputDecoration(hintText: 'Tên mèo cưng', prefixIcon: Icon(Icons.pets, size: 20, color: MoewColors.textSub)),
+          decoration: InputDecoration(hintText: 'Tên mèo cưng', prefixIcon: Icon(Icons.pets, size: 20, color: MoewColors.textSub)),
         ),
-        const SizedBox(height: MoewSpacing.md),
+        SizedBox(height: MoewSpacing.md),
 
         // ── Breed (free text + suggestions) ──
         _label('GIỐNG MÈO'),
-        const SizedBox(height: MoewSpacing.sm),
+        SizedBox(height: MoewSpacing.sm),
         _buildBreedField(),
-        const SizedBox(height: MoewSpacing.md),
+        SizedBox(height: MoewSpacing.md),
 
         // ── Gender ──
         _label('GIỚI TÍNH'),
-        const SizedBox(height: MoewSpacing.sm),
+        SizedBox(height: MoewSpacing.sm),
         Row(children: [
           _genderCard('Đực', 'male', Icons.male, MoewColors.primary),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           _genderCard('Cái', 'female', Icons.female, MoewColors.secondary),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           _genderCard('Triệt sản', 'neutered', Icons.content_cut, MoewColors.accent),
         ]),
-        const SizedBox(height: MoewSpacing.md),
+        SizedBox(height: MoewSpacing.md),
 
         // ── Weight ──
         _label('CÂN NẶNG (KG)'),
-        const SizedBox(height: MoewSpacing.sm),
+        SizedBox(height: MoewSpacing.sm),
         TextField(
           controller: _weightCtrl,
           keyboardType: TextInputType.number,
-          decoration: const InputDecoration(hintText: '0.0', prefixIcon: Icon(Icons.monitor_weight_outlined, size: 20, color: MoewColors.textSub), suffixText: 'kg'),
+          decoration: InputDecoration(hintText: '0.0', prefixIcon: Icon(Icons.monitor_weight_outlined, size: 20, color: MoewColors.textSub), suffixText: 'kg'),
         ),
-        const SizedBox(height: MoewSpacing.md),
+        SizedBox(height: MoewSpacing.md),
 
         // ── Fur color ──
         _label('MÀU LÔNG'),
-        const SizedBox(height: MoewSpacing.sm),
+        SizedBox(height: MoewSpacing.sm),
         TextField(
           controller: _colorCtrl,
-          decoration: const InputDecoration(hintText: 'VD: Cam, trắng, vằn...', prefixIcon: Icon(Icons.palette_outlined, size: 20, color: MoewColors.textSub)),
+          decoration: InputDecoration(hintText: 'VD: Cam, trắng, vằn...', prefixIcon: Icon(Icons.palette_outlined, size: 20, color: MoewColors.textSub)),
         ),
-        const SizedBox(height: MoewSpacing.md),
+        SizedBox(height: MoewSpacing.md),
 
         // ── Birthday ──
         _label('NGÀY SINH'),
-        const SizedBox(height: MoewSpacing.sm),
+        SizedBox(height: MoewSpacing.sm),
         _buildDatePicker(),
-        const SizedBox(height: MoewSpacing.md),
+        SizedBox(height: MoewSpacing.md),
 
         // ── Notes ──
         _label('GHI CHÚ'),
-        const SizedBox(height: MoewSpacing.sm),
+        SizedBox(height: MoewSpacing.sm),
         TextField(
           controller: _notesCtrl,
           maxLines: 3,
-          decoration: const InputDecoration(hintText: 'Đặc điểm, sở thích... (tùy chọn)', prefixIcon: Padding(padding: EdgeInsets.only(bottom: 40), child: Icon(Icons.notes, size: 20, color: MoewColors.textSub))),
+          decoration: InputDecoration(hintText: 'Đặc điểm, sở thích... (tùy chọn)', prefixIcon: Padding(padding: EdgeInsets.only(bottom: 40), child: Icon(Icons.notes, size: 20, color: MoewColors.textSub))),
         ),
-        const SizedBox(height: MoewSpacing.xl),
+        SizedBox(height: MoewSpacing.xl),
 
         // ── Submit ──
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
             onPressed: _loading ? null : _submit,
-            style: ElevatedButton.styleFrom(backgroundColor: MoewColors.secondary, padding: const EdgeInsets.symmetric(vertical: 16)),
+            style: ElevatedButton.styleFrom(backgroundColor: MoewColors.secondary, padding: EdgeInsets.symmetric(vertical: 16)),
             child: _loading
-                ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                ? SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                 : Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    const Icon(Icons.pets, size: 20, color: Colors.white),
-                    const SizedBox(width: 8),
+                    Icon(Icons.pets, size: 20, color: Colors.white),
+                    SizedBox(width: 8),
                     Text('Thêm Boss Mèo', style: MoewTextStyles.button),
                   ]),
           ),
         ),
-        const SizedBox(height: MoewSpacing.lg),
+        SizedBox(height: MoewSpacing.lg),
       ]),
     );
   }
@@ -203,7 +203,7 @@ class _AddPetScreenState extends State<AddPetScreen> {
               boxShadow: MoewShadows.soft,
             ),
             child: _avatarBase64 == null
-                ? const Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                ? Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                     Icon(Icons.pets, size: 36, color: MoewColors.secondary),
                     SizedBox(height: 2),
                     Text('Ảnh', style: TextStyle(fontSize: 11, color: MoewColors.secondary, fontWeight: FontWeight.w600)),
@@ -213,13 +213,13 @@ class _AddPetScreenState extends State<AddPetScreen> {
           Positioned(
             right: 0, bottom: 0,
             child: Container(
-              padding: const EdgeInsets.all(6),
+              padding: EdgeInsets.all(6),
               decoration: BoxDecoration(
                 color: MoewColors.primary,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: MoewColors.white, width: 2),
               ),
-              child: const Icon(Icons.camera_alt, size: 14, color: Colors.white),
+              child: Icon(Icons.camera_alt, size: 14, color: Colors.white),
             ),
           ),
         ]),
@@ -232,13 +232,13 @@ class _AddPetScreenState extends State<AddPetScreen> {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       TextField(
         controller: _breedCtrl,
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           hintText: 'Nhập giống mèo (VD: Mèo cam)',
           prefixIcon: Icon(Icons.category_outlined, size: 20, color: MoewColors.textSub),
         ),
         onChanged: (_) => setState(() {}),
       ),
-      const SizedBox(height: 6),
+      SizedBox(height: 6),
       Wrap(spacing: 6, runSpacing: 6, children: _breedSuggestions
         .where((b) => _breedCtrl.text.isEmpty || b.toLowerCase().contains(_breedCtrl.text.toLowerCase()))
         .take(5)
@@ -247,7 +247,7 @@ class _AddPetScreenState extends State<AddPetScreen> {
           return GestureDetector(
             onTap: () => setState(() { _breedCtrl.text = b; _breedCtrl.selection = TextSelection.fromPosition(TextPosition(offset: b.length)); }),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
                 color: active ? MoewColors.tintBlue : MoewColors.surface,
                 borderRadius: BorderRadius.circular(MoewRadius.full),
@@ -268,15 +268,15 @@ class _AddPetScreenState extends State<AddPetScreen> {
     return GestureDetector(
       onTap: _selectDate,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
           color: MoewColors.surface,
           borderRadius: BorderRadius.circular(MoewRadius.sm),
           border: Border.all(color: MoewColors.border),
         ),
         child: Row(children: [
-          const Icon(Icons.calendar_month, size: 20, color: MoewColors.textSub),
-          const SizedBox(width: 10),
+          Icon(Icons.calendar_month, size: 20, color: MoewColors.textSub),
+          SizedBox(width: 10),
           Text(
             _birthday != null
                 ? '${_birthday!.day.toString().padLeft(2, '0')}/${_birthday!.month.toString().padLeft(2, '0')}/${_birthday!.year}'
@@ -286,7 +286,7 @@ class _AddPetScreenState extends State<AddPetScreen> {
           const Spacer(),
           if (_birthday != null) GestureDetector(
             onTap: () => setState(() => _birthday = null),
-            child: const Icon(Icons.close, size: 18, color: MoewColors.textSub),
+            child: Icon(Icons.close, size: 18, color: MoewColors.textSub),
           ),
         ]),
       ),
@@ -300,8 +300,8 @@ class _AddPetScreenState extends State<AddPetScreen> {
       child: GestureDetector(
         onTap: () => setState(() => _gender = value),
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 14),
+          duration: Duration(milliseconds: 200),
+          padding: EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
             color: active ? activeColor.withValues(alpha: 0.1) : MoewColors.surface,
             borderRadius: BorderRadius.circular(MoewRadius.md),
@@ -309,7 +309,7 @@ class _AddPetScreenState extends State<AddPetScreen> {
           ),
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             Icon(icon, size: 24, color: active ? activeColor : MoewColors.textSub),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: active ? activeColor : MoewColors.textSub)),
           ]),
         ),

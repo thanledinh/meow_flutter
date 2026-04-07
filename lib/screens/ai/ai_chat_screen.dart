@@ -132,18 +132,18 @@ class _AiChatScreenState extends State<AiChatScreen> {
         // ── Messages ──
         Expanded(
           child: _starting
-              ? const Center(child: CircularProgressIndicator(color: MoewColors.accent))
+              ? Center(child: CircularProgressIndicator(color: MoewColors.accent))
               : _messages.isEmpty && !_sending
                   ? Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      const Icon(Icons.auto_awesome, size: 48, color: MoewColors.accent),
-                      const SizedBox(height: 12),
+                      Icon(Icons.auto_awesome, size: 48, color: MoewColors.accent),
+                      SizedBox(height: 12),
                       Text(widget.foodLogId != null ? 'Đang tải kết quả phân tích...' : 'Hỏi AI bất cứ điều gì!', style: MoewTextStyles.body),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       Text('AI đóng vai bác sĩ thú y Moew', style: MoewTextStyles.caption),
                     ]))
                   : ListView.builder(
                       controller: _scroll,
-                      padding: const EdgeInsets.all(MoewSpacing.md),
+                      padding: EdgeInsets.all(MoewSpacing.md),
                       itemCount: _messages.length,
                       itemBuilder: (ctx, i) => _buildMessage(_messages[i]),
                     ),
@@ -151,16 +151,16 @@ class _AiChatScreenState extends State<AiChatScreen> {
 
         // ── Typing indicator ──
         if (_sending) Container(
-          padding: const EdgeInsets.symmetric(horizontal: MoewSpacing.lg, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: MoewSpacing.lg, vertical: 8),
           child: Row(children: [
             Container(
               width: 28, height: 28,
               decoration: BoxDecoration(color: MoewColors.tintPurple, borderRadius: BorderRadius.circular(14)),
-              child: const Icon(Icons.auto_awesome, size: 14, color: MoewColors.accent),
+              child: Icon(Icons.auto_awesome, size: 14, color: MoewColors.accent),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
             SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: MoewColors.accent, strokeWidth: 2)),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             Text('Moew đang suy nghĩ...', style: MoewTextStyles.caption),
           ]),
         ),
@@ -170,7 +170,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
           padding: EdgeInsets.only(left: 12, right: 8, top: 8, bottom: MediaQuery.of(context).padding.bottom + 8),
           decoration: BoxDecoration(
             color: MoewColors.white,
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), offset: const Offset(0, -2), blurRadius: 8)],
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), offset: Offset(0, -2), blurRadius: 8)],
           ),
           child: Row(children: [
             Expanded(child: TextField(
@@ -180,19 +180,19 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(MoewRadius.full), borderSide: BorderSide.none),
                 filled: true,
                 fillColor: MoewColors.surface,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 isDense: true,
               ),
               onSubmitted: (_) => _send(),
               textInputAction: TextInputAction.send,
             )),
-            const SizedBox(width: 6),
+            SizedBox(width: 6),
             Container(
               decoration: BoxDecoration(color: MoewColors.primary, borderRadius: BorderRadius.circular(MoewRadius.full)),
               child: IconButton(
                 onPressed: _sending ? null : _send,
-                icon: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
-                padding: const EdgeInsets.all(10),
+                icon: Icon(Icons.send_rounded, color: Colors.white, size: 20),
+                padding: EdgeInsets.all(10),
                 constraints: const BoxConstraints(),
               ),
             ),
@@ -210,8 +210,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
     final scoreColor = score >= 7 ? MoewColors.success : score >= 5 ? MoewColors.warning : MoewColors.danger;
 
     return Container(
-      margin: const EdgeInsets.all(MoewSpacing.sm),
-      padding: const EdgeInsets.all(MoewSpacing.sm),
+      margin: EdgeInsets.all(MoewSpacing.sm),
+      padding: EdgeInsets.all(MoewSpacing.sm),
       decoration: BoxDecoration(
         color: MoewColors.tintPurple,
         borderRadius: BorderRadius.circular(MoewRadius.md),
@@ -221,18 +221,18 @@ class _AiChatScreenState extends State<AiChatScreen> {
         Container(
           width: 36, height: 36,
           decoration: BoxDecoration(color: MoewColors.accent.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(10)),
-          child: const Icon(Icons.restaurant, size: 18, color: MoewColors.accent),
+          child: Icon(Icons.restaurant, size: 18, color: MoewColors.accent),
         ),
-        const SizedBox(width: 10),
+        SizedBox(width: 10),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: MoewColors.textMain)),
+          Text(name, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: MoewColors.textMain)),
           Row(children: [
             if (calories != null) Text('$calories kcal', style: MoewTextStyles.caption),
             if (calories != null && score > 0) Text(' · ', style: MoewTextStyles.caption),
             if (score > 0) Text('Điểm: ${score.toStringAsFixed(0)}/10', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: scoreColor)),
           ]),
         ])),
-        const Icon(Icons.chat_bubble_outline, size: 16, color: MoewColors.accent),
+        Icon(Icons.chat_bubble_outline, size: 16, color: MoewColors.accent),
       ]),
     );
   }
@@ -241,7 +241,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
   Widget _buildMessage(Map<String, dynamic> m) {
     final isUser = m['role'] == 'user';
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.only(bottom: 10),
       child: Row(
         mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,19 +249,19 @@ class _AiChatScreenState extends State<AiChatScreen> {
           if (!isUser) ...[
             Container(
               width: 30, height: 30,
-              margin: const EdgeInsets.only(right: 8, top: 2),
+              margin: EdgeInsets.only(right: 8, top: 2),
               decoration: BoxDecoration(color: MoewColors.tintPurple, borderRadius: BorderRadius.circular(15)),
-              child: const Icon(Icons.auto_awesome, size: 14, color: MoewColors.accent),
+              child: Icon(Icons.auto_awesome, size: 14, color: MoewColors.accent),
             ),
           ],
           Flexible(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: isUser ? MoewColors.primary : MoewColors.white,
                 borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(16),
-                  topRight: const Radius.circular(16),
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
                   bottomLeft: Radius.circular(isUser ? 16 : 4),
                   bottomRight: Radius.circular(isUser ? 4 : 16),
                 ),
@@ -273,7 +273,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
               ),
             ),
           ),
-          if (isUser) const SizedBox(width: 38),
+          if (isUser) SizedBox(width: 38),
         ],
       ),
     );

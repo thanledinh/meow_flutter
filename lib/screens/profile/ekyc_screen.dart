@@ -74,34 +74,34 @@ class _EkycScreenState extends State<EkycScreen> {
     return Scaffold(
       backgroundColor: MoewColors.background,
       appBar: const AppHeader(title: 'Xác minh danh tính'),
-      body: ListView(padding: const EdgeInsets.all(MoewSpacing.lg), children: [
+      body: ListView(padding: EdgeInsets.all(MoewSpacing.lg), children: [
         if (_status != null) ...[
           StatusBadge(
             label: _status!['status'] ?? 'Pending',
             color: _status!['status'] == 'verified' ? MoewColors.success : MoewColors.warning,
             icon: _status!['status'] == 'verified' ? Icons.check_circle : Icons.hourglass_bottom,
           ),
-          const SizedBox(height: MoewSpacing.lg),
+          SizedBox(height: MoewSpacing.lg),
         ],
         Text('SỐ CCCD', style: MoewTextStyles.label),
-        const SizedBox(height: MoewSpacing.sm),
+        SizedBox(height: MoewSpacing.sm),
         TextField(controller: _idNumberCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: 'Nhập số CCCD')),
-        const SizedBox(height: MoewSpacing.md),
+        SizedBox(height: MoewSpacing.md),
         Text('HỌ TÊN TRÊN CCCD', style: MoewTextStyles.label),
-        const SizedBox(height: MoewSpacing.sm),
+        SizedBox(height: MoewSpacing.sm),
         TextField(controller: _idNameCtrl, decoration: const InputDecoration(hintText: 'Nhập họ tên')),
-        const SizedBox(height: MoewSpacing.lg),
+        SizedBox(height: MoewSpacing.lg),
         Row(children: [
           Expanded(child: _imgPicker('Mặt trước', _frontImage != null, () => _pickImage(true))),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(child: _imgPicker('Mặt sau', _backImage != null, () => _pickImage(false))),
         ]),
-        const SizedBox(height: MoewSpacing.xl),
+        SizedBox(height: MoewSpacing.xl),
         ElevatedButton(
           onPressed: _loading ? null : _submit,
-          style: ElevatedButton.styleFrom(backgroundColor: MoewColors.success, padding: const EdgeInsets.symmetric(vertical: 16)),
+          style: ElevatedButton.styleFrom(backgroundColor: MoewColors.success, padding: EdgeInsets.symmetric(vertical: 16)),
           child: _loading
-              ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+              ? SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
               : Text('Gửi xác minh', style: MoewTextStyles.button),
         ),
       ]),
@@ -120,7 +120,7 @@ class _EkycScreenState extends State<EkycScreen> {
         ),
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
           Icon(taken ? Icons.check_circle : Icons.camera_alt_outlined, size: 32, color: taken ? MoewColors.success : MoewColors.textSub),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: taken ? MoewColors.success : MoewColors.textSub)),
         ]),
       ),

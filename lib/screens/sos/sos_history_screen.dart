@@ -32,30 +32,30 @@ class _SosHistoryScreenState extends State<SosHistoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MoewColors.background,
-      appBar: const AppHeader(title: 'Lịch sử SOS'),
+      appBar: AppHeader(title: 'Lịch sử SOS'),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: MoewColors.primary))
+          ? Center(child: CircularProgressIndicator(color: MoewColors.primary))
           : _history.isEmpty
-              ? const EmptyState(icon: Icons.monitor_heart_outlined, color: MoewColors.danger, message: 'Chưa có SOS nào')
+              ? EmptyState(icon: Icons.monitor_heart_outlined, color: MoewColors.danger, message: 'Chưa có SOS nào')
               : RefreshIndicator(onRefresh: _fetch, child: ListView.builder(
-                  padding: const EdgeInsets.all(MoewSpacing.lg),
+                  padding: EdgeInsets.all(MoewSpacing.lg),
                   itemCount: _history.length,
                   itemBuilder: (ctx, i) {
                     final h = _history[i] as Map<String, dynamic>;
                     return Container(
-                      margin: const EdgeInsets.only(bottom: MoewSpacing.sm),
-                      padding: const EdgeInsets.all(MoewSpacing.md),
+                      margin: EdgeInsets.only(bottom: MoewSpacing.sm),
+                      padding: EdgeInsets.all(MoewSpacing.md),
                       decoration: BoxDecoration(color: MoewColors.white, borderRadius: BorderRadius.circular(MoewRadius.lg), boxShadow: MoewShadows.card),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                          Text('SOS #${h['id']}', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: MoewColors.textMain)),
+                          Text('SOS #${h['id']}', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: MoewColors.textMain)),
                           StatusBadge(label: h['status'] ?? 'searching', color: _statusColor(h['status']), icon: Icons.circle),
                         ]),
-                        if (h['pet'] is Map) Padding(padding: const EdgeInsets.only(top: 4), child: Row(children: [const Icon(Icons.pets, size: 14, color: MoewColors.textSub), SizedBox(width: 4), Text(h['pet']['name'] ?? '', style: MoewTextStyles.caption)])),
-                        if (h['description'] != null) Padding(padding: const EdgeInsets.only(top: 4), child: Text(h['description'], style: MoewTextStyles.body)),
-                        if (h['clinic'] is Map) Padding(padding: const EdgeInsets.only(top: 4), child: Row(children: [const Icon(Icons.medical_services_outlined, size: 14, color: MoewColors.success), const SizedBox(width: 4), Expanded(child: Text(h['clinic']['name'] ?? '', style: const TextStyle(fontSize: 13, color: MoewColors.success, fontWeight: FontWeight.w600)))])),
-                        if (h['totalCost'] != null) Padding(padding: const EdgeInsets.only(top: 4), child: Row(children: [const Icon(Icons.attach_money, size: 14, color: MoewColors.secondary), const SizedBox(width: 4), Text(formatVND(h['totalCost']), style: const TextStyle(fontSize: 13, color: MoewColors.secondary, fontWeight: FontWeight.w600))])),
-                        if (h['createdAt'] != null) Padding(padding: const EdgeInsets.only(top: 4), child: Text(h['createdAt'].toString().substring(0, 16).replaceAll('T', ' '), style: MoewTextStyles.caption)),
+                        if (h['pet'] is Map) Padding(padding: EdgeInsets.only(top: 4), child: Row(children: [Icon(Icons.pets, size: 14, color: MoewColors.textSub), SizedBox(width: 4), Text(h['pet']['name'] ?? '', style: MoewTextStyles.caption)])),
+                        if (h['description'] != null) Padding(padding: EdgeInsets.only(top: 4), child: Text(h['description'], style: MoewTextStyles.body)),
+                        if (h['clinic'] is Map) Padding(padding: EdgeInsets.only(top: 4), child: Row(children: [Icon(Icons.medical_services_outlined, size: 14, color: MoewColors.success), SizedBox(width: 4), Expanded(child: Text(h['clinic']['name'] ?? '', style: TextStyle(fontSize: 13, color: MoewColors.success, fontWeight: FontWeight.w600)))])),
+                        if (h['totalCost'] != null) Padding(padding: EdgeInsets.only(top: 4), child: Row(children: [Icon(Icons.attach_money, size: 14, color: MoewColors.secondary), SizedBox(width: 4), Text(formatVND(h['totalCost']), style: TextStyle(fontSize: 13, color: MoewColors.secondary, fontWeight: FontWeight.w600))])),
+                        if (h['createdAt'] != null) Padding(padding: EdgeInsets.only(top: 4), child: Text(h['createdAt'].toString().substring(0, 16).replaceAll('T', ' '), style: MoewTextStyles.caption)),
                       ]),
                     );
                   },

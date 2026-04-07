@@ -52,21 +52,21 @@ class _FoodHistoryScreenState extends State<FoodHistoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MoewColors.background,
-      appBar: const AppHeader(title: 'Lịch sử ăn'),
+      appBar: AppHeader(title: 'Lịch sử ăn'),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: MoewColors.primary))
+          ? Center(child: CircularProgressIndicator(color: MoewColors.primary))
           : _history.isEmpty
-              ? const EmptyState(icon: Icons.restaurant, color: MoewColors.primary, message: 'Chưa có lịch sử ăn')
+              ? EmptyState(icon: Icons.restaurant, color: MoewColors.primary, message: 'Chưa có lịch sử ăn')
               : NotificationListener<ScrollNotification>(
                     onNotification: (n) {
                       if (n is ScrollEndNotification && n.metrics.pixels > n.metrics.maxScrollExtent - 100) _loadMore();
                       return false;
                     },
                     child: ListView.builder(
-                      padding: const EdgeInsets.all(MoewSpacing.md),
+                      padding: EdgeInsets.all(MoewSpacing.md),
                       itemCount: _history.length + (_loadingMore ? 1 : 0),
                       itemBuilder: (_, i) {
-                        if (i == _history.length) return const Center(child: Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator(color: MoewColors.primary, strokeWidth: 2)));
+                        if (i == _history.length) return Center(child: Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator(color: MoewColors.primary, strokeWidth: 2)));
                         return _buildDayGroup(_history[i] as Map<String, dynamic>);
                       },
                     ),
@@ -86,21 +86,25 @@ class _FoodHistoryScreenState extends State<FoodHistoryScreen> {
     final today = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
     final yesterday = DateTime(now.year, now.month, now.day - 1);
     final yesterdayStr = '${yesterday.year}-${yesterday.month.toString().padLeft(2, '0')}-${yesterday.day.toString().padLeft(2, '0')}';
-    if (dateStr == today) dateLabel = 'Hôm nay';
-    else if (dateStr == yesterdayStr) dateLabel = 'Hôm qua';
-    else dateLabel = dateStr.split('-').reversed.join('/');
+    if (dateStr == today) {
+      dateLabel = 'Hôm nay';
+    } else if (dateStr == yesterdayStr) {
+      dateLabel = 'Hôm qua';
+    } else {
+      dateLabel = dateStr.split('-').reversed.join('/');
+    }
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       // Day header
       Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: EdgeInsets.symmetric(vertical: 8),
         child: Row(children: [
-          Text(dateLabel, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: MoewColors.textMain)),
-          const Spacer(),
+          Text(dateLabel, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: MoewColors.textMain)),
+          Spacer(),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(color: MoewColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(MoewRadius.full)),
-            child: Text('${totalCal.toInt()} kcal', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: MoewColors.primary)),
+            child: Text('${totalCal.toInt()} kcal', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: MoewColors.primary)),
           ),
         ]),
       ),
@@ -112,8 +116,8 @@ class _FoodHistoryScreenState extends State<FoodHistoryScreen> {
         final isScan = m['type'] == 'ai_scan';
 
         return Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          padding: const EdgeInsets.all(12),
+          margin: EdgeInsets.only(bottom: 8),
+          padding: EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: MoewColors.white,
             borderRadius: BorderRadius.circular(MoewRadius.md),
@@ -134,30 +138,30 @@ class _FoodHistoryScreenState extends State<FoodHistoryScreen> {
                 color: isFeeding ? MoewColors.success : MoewColors.accent,
               ),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
             // Details
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
-                Text(m['label']?.toString() ?? '', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: MoewColors.textMain)),
-                if (m['time'] != null) Text(' ・ ${m['time']}', style: const TextStyle(fontSize: 11, color: MoewColors.textSub)),
+                Text(m['label']?.toString() ?? '', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: MoewColors.textMain)),
+                if (m['time'] != null) Text(' ・ ${m['time']}', style: TextStyle(fontSize: 11, color: MoewColors.textSub)),
               ]),
-              const SizedBox(height: 2),
-              Text('${m['petName'] ?? ''} — ${m['foodName'] ?? ''}', style: const TextStyle(fontSize: 11, color: MoewColors.textSub)),
+              SizedBox(height: 2),
+              Text('${m['petName'] ?? ''} — ${m['foodName'] ?? ''}', style: TextStyle(fontSize: 11, color: MoewColors.textSub)),
               if (m['note'] != null && m['note'].toString().isNotEmpty) ...[
-                const SizedBox(height: 2),
-                Text(m['note'].toString(), style: const TextStyle(fontSize: 10, color: MoewColors.textSub, fontStyle: FontStyle.italic), maxLines: 2, overflow: TextOverflow.ellipsis),
+                SizedBox(height: 2),
+                Text(m['note'].toString(), style: TextStyle(fontSize: 10, color: MoewColors.textSub, fontStyle: FontStyle.italic), maxLines: 2, overflow: TextOverflow.ellipsis),
               ],
             ])),
             // Cal + grams
             Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              if (m['calories'] != null) Text('${m['calories']} kcal', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: MoewColors.primary)),
-              if (m['grams'] != null) Text('${m['grams']}g', style: const TextStyle(fontSize: 10, color: MoewColors.textSub)),
+              if (m['calories'] != null) Text('${m['calories']} kcal', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: MoewColors.primary)),
+              if (m['grams'] != null) Text('${m['grams']}g', style: TextStyle(fontSize: 10, color: MoewColors.textSub)),
             ]),
           ]),
         );
       }),
 
-      const SizedBox(height: 4),
+      SizedBox(height: 4),
     ]);
   }
 }

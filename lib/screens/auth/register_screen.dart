@@ -65,23 +65,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label.toUpperCase(), style: MoewTextStyles.label),
-        const SizedBox(height: MoewSpacing.sm),
+        SizedBox(height: MoewSpacing.sm),
         TextField(
           controller: ctrl,
           obscureText: isPassword && !_showPassword,
           keyboardType: keyboardType,
           decoration: InputDecoration(
             hintText: hint,
-            prefixIcon: Icon(icon, size: 20, color: MoewColors.textSub),
+            prefixIcon: Icon(icon, size: 20, color: Theme.of(context).textTheme.bodySmall?.color),
             suffixIcon: isPassword
                 ? IconButton(
-                    icon: Icon(_showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 22, color: MoewColors.textSub),
+                    icon: Icon(_showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 22, color: Theme.of(context).textTheme.bodySmall?.color),
                     onPressed: () => setState(() => _showPassword = !_showPassword),
                   )
                 : null,
           ),
         ),
-        const SizedBox(height: MoewSpacing.md),
+        SizedBox(height: MoewSpacing.md),
       ],
     );
   }
@@ -89,34 +89,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: MoewColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: MoewSpacing.lg, vertical: MoewSpacing.xl),
+            padding: EdgeInsets.symmetric(horizontal: MoewSpacing.lg, vertical: MoewSpacing.xl),
             child: Column(
               children: [
                 // Logo
                 Container(
                   width: 80, height: 80,
                   decoration: BoxDecoration(
-                    color: MoewColors.surface,
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(MoewRadius.full),
                     boxShadow: MoewShadows.card,
                   ),
-                  child: const Icon(Icons.pets, size: 38, color: MoewColors.secondary),
+                  child: Icon(Icons.pets, size: 38, color: MoewColors.secondary),
                 ),
-                const SizedBox(height: MoewSpacing.md),
-                Text('Tạo tài khoản', style: MoewTextStyles.h1),
-                const SizedBox(height: MoewSpacing.sm),
-                Text('Tham gia cộng đồng yêu thú cưng', style: TextStyle(fontSize: 14, color: MoewColors.textSub)),
-                const SizedBox(height: MoewSpacing.lg),
+                SizedBox(height: MoewSpacing.md),
+                Text('Tạo tài khoản', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: Theme.of(context).textTheme.headlineLarge?.color)),
+                SizedBox(height: MoewSpacing.sm),
+                Text('Tham gia cộng đồng yêu thú cưng', style: TextStyle(fontSize: 14, color: Theme.of(context).textTheme.bodySmall?.color)),
+                SizedBox(height: MoewSpacing.lg),
 
                 // Form card
                 Container(
-                  padding: const EdgeInsets.all(MoewSpacing.lg),
+                  padding: EdgeInsets.all(MoewSpacing.lg),
                   decoration: BoxDecoration(
-                    color: MoewColors.white,
+                    color: Theme.of(context).cardTheme.color,
                     borderRadius: BorderRadius.circular(MoewRadius.xl),
                     boxShadow: MoewShadows.card,
                   ),
@@ -134,16 +134,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           onPressed: _loading ? null : _handleRegister,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: MoewColors.secondary,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            padding: EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(MoewRadius.md)),
                           ),
                           child: _loading
-                              ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                              ? SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                               : Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Icon(Icons.person_add_outlined, size: 22, color: Colors.white),
-                                    const SizedBox(width: 8),
+                                    Icon(Icons.person_add_outlined, size: 22, color: Colors.white),
+                                    SizedBox(width: 8),
                                     Text('Tạo tài khoản', style: MoewTextStyles.button),
                                   ],
                                 ),
@@ -152,15 +152,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: MoewSpacing.lg),
+                SizedBox(height: MoewSpacing.lg),
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('Đã có tài khoản? ', style: TextStyle(color: MoewColors.textSub, fontSize: 14)),
+                    Text('Đã có tài khoản? ', style: TextStyle(color: Theme.of(context).textTheme.bodySmall?.color, fontSize: 14)),
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
-                      child: const Text('Đăng nhập', style: TextStyle(color: MoewColors.primary, fontSize: 14, fontWeight: FontWeight.w700)),
+                      child: Text('Đăng nhập', style: TextStyle(color: MoewColors.primary, fontSize: 14, fontWeight: FontWeight.w700)),
                     ),
                   ],
                 ),

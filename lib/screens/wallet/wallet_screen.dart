@@ -56,18 +56,18 @@ class _WalletScreenState extends State<WalletScreen> {
         padding: EdgeInsets.only(left: MoewSpacing.lg, right: MoewSpacing.lg, top: 16, bottom: MediaQuery.of(ctx).viewInsets.bottom + 40),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Container(width: 40, height: 4, decoration: BoxDecoration(color: MoewColors.border, borderRadius: BorderRadius.circular(2))),
-          const SizedBox(height: MoewSpacing.md),
+          SizedBox(height: MoewSpacing.md),
           Text('Nạp tiền', style: MoewTextStyles.h2),
-          const SizedBox(height: MoewSpacing.lg),
+          SizedBox(height: MoewSpacing.lg),
           TextField(controller: amountCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: 'Số tiền (VNĐ)', prefixIcon: Icon(Icons.attach_money))),
-          const SizedBox(height: MoewSpacing.lg),
+          SizedBox(height: MoewSpacing.lg),
           SizedBox(width: double.infinity, child: ElevatedButton(
             onPressed: () async {
               final amount = double.tryParse(amountCtrl.text);
               if (amount == null || amount <= 0) return;
               Navigator.pop(ctx);
               final res = await WalletApi.topup(amount);
-              if (mounted) {
+              if (mounted && context.mounted) {
                 if (res.success) { MoewToast.show(context, message: 'Nạp thành công!', type: ToastType.success); _fetch(); }
                 else { MoewToast.show(context, message: res.error ?? 'Lỗi', type: ToastType.error); }
               }
@@ -84,42 +84,42 @@ class _WalletScreenState extends State<WalletScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MoewColors.background,
-      appBar: const AppHeader(title: 'Ví Meow-Care'),
+      appBar: AppHeader(title: 'Ví Meow-Care'),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: MoewColors.primary))
-          : ListView(padding: const EdgeInsets.all(MoewSpacing.lg), children: [
+          ? Center(child: CircularProgressIndicator(color: MoewColors.primary))
+          : ListView(padding: EdgeInsets.all(MoewSpacing.lg), children: [
               // Balance card
               Container(
-                padding: const EdgeInsets.all(MoewSpacing.lg),
+                padding: EdgeInsets.all(MoewSpacing.lg),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [MoewColors.primary, Color(0xFF1A6BA0)]),
+                  gradient: LinearGradient(colors: [MoewColors.primary, Color(0xFF1A6BA0)]),
                   borderRadius: BorderRadius.circular(MoewRadius.xl),
                 ),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  const Text('SỐ DƯ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white70, letterSpacing: 1)),
-                  const SizedBox(height: 4),
-                  Text(formatVND(_balance), style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: Colors.white)),
+                  Text('SỐ DƯ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white70, letterSpacing: 1)),
+                  SizedBox(height: 4),
+                  Text(formatVND(_balance), style: TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: Colors.white)),
                   if (_debt > 0) Padding(
-                    padding: const EdgeInsets.only(top: 8),
+                    padding: EdgeInsets.only(top: 8),
                     child: Row(children: [
-                      const Icon(Icons.warning, size: 16, color: MoewColors.warning),
-                      const SizedBox(width: 4),
-                      Text('Nợ: ${formatVND(_debt)}', style: const TextStyle(color: MoewColors.warning, fontSize: 14, fontWeight: FontWeight.w600)),
+                      Icon(Icons.warning, size: 16, color: MoewColors.warning),
+                      SizedBox(width: 4),
+                      Text('Nợ: ${formatVND(_debt)}', style: TextStyle(color: MoewColors.warning, fontSize: 14, fontWeight: FontWeight.w600)),
                     ]),
                   ),
-                  const SizedBox(height: MoewSpacing.md),
+                  SizedBox(height: MoewSpacing.md),
                   Row(children: [
                     Expanded(child: ElevatedButton(
                       onPressed: _showTopup,
                       style: ElevatedButton.styleFrom(backgroundColor: Colors.white.withValues(alpha: 0.2), foregroundColor: Colors.white),
-                      child: const Text('Nạp tiền'),
+                      child: Text('Nạp tiền'),
                     )),
                     if (_debt > 0) ...[
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       Expanded(child: ElevatedButton(
                         onPressed: () async {
                           final res = await WalletApi.repay(_debt);
-                          if (mounted) {
+                          if (mounted && context.mounted) {
                             if (res.success) { MoewToast.show(context, message: 'Đã trả nợ!', type: ToastType.success); _fetch(); }
                             else { MoewToast.show(context, message: res.error ?? 'Lỗi', type: ToastType.error); }
                           }
@@ -131,13 +131,13 @@ class _WalletScreenState extends State<WalletScreen> {
                   ]),
                 ]),
               ),
-              const SizedBox(height: MoewSpacing.xl),
+              SizedBox(height: MoewSpacing.xl),
 
               // Transactions
               Text('LỊCH SỬ GIAO DỊCH', style: MoewTextStyles.label),
-              const SizedBox(height: MoewSpacing.md),
+              SizedBox(height: MoewSpacing.md),
               if (_transactions.isEmpty)
-                const EmptyState(icon: Icons.receipt_long, color: MoewColors.textSub, message: 'Chưa có giao dịch')
+                EmptyState(icon: Icons.receipt_long, color: MoewColors.textSub, message: 'Chưa có giao dịch')
               else
                 ..._transactions.map((t) {
                   final amount = toDouble(t['amount']);
@@ -145,14 +145,14 @@ class _WalletScreenState extends State<WalletScreen> {
                   final isPositive = type == 'topup' || type == 'repay';
                   final label = t['note']?.toString() ?? _typeLabel(type);
                   return Container(
-                    margin: const EdgeInsets.only(bottom: MoewSpacing.sm),
-                    padding: const EdgeInsets.all(MoewSpacing.md),
+                    margin: EdgeInsets.only(bottom: MoewSpacing.sm),
+                    padding: EdgeInsets.all(MoewSpacing.md),
                     decoration: BoxDecoration(color: MoewColors.white, borderRadius: BorderRadius.circular(MoewRadius.md), boxShadow: MoewShadows.card),
                     child: Row(children: [
                       Icon(isPositive ? Icons.add_circle : Icons.remove_circle, color: isPositive ? MoewColors.success : MoewColors.danger, size: 24),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
                       Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: MoewColors.textMain)),
+                        Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: MoewColors.textMain)),
                         if (t['createdAt'] != null) Text(t['createdAt'].toString().length >= 16 ? t['createdAt'].toString().substring(0, 16).replaceAll('T', ' ') : t['createdAt'].toString(), style: MoewTextStyles.caption),
                       ])),
                       Text('${isPositive ? '+' : '-'}${formatVND(amount)}', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: isPositive ? MoewColors.success : MoewColors.danger)),

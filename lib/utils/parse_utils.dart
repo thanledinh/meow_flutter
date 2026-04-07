@@ -40,5 +40,5 @@ String formatVND(dynamic value) {
     if (i > 0 && (s.length - i) % 3 == 0) buf.write('.');
     buf.write(s[i]);
   }
-  return '${n < 0 ? '-' : ''}${buf}đ';
+  return '${n < 0 ? '-' : ''}$bufđ';
 }

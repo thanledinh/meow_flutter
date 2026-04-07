@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../config/theme.dart';
 import '../../api/clinic_api.dart';
 import '../../widgets/toast.dart';
 import '../../widgets/common_widgets.dart';
+import '../../services/mqtt_service.dart';
 
 const _statusTabs = [
   {'key': null, 'label': 'Tất cả'},
@@ -22,11 +24,53 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
   List<dynamic> _bookings = [];
   bool _loading = true;
   String? _statusFilter;
+  StreamSubscription? _mqttSub;
 
   @override
   void initState() {
     super.initState();
     _fetch();
+    _listenMqtt();
+  }
+
+  void _listenMqtt() {
+    _mqttSub = MqttService().messageStream.listen((data) {
+      if (!mounted) return;
+      final type = data['type'] as String?;
+      switch (type) {
+        case 'booking_created':
+          MoewToast.show(
+            context,
+            message: data['title']?.toString() ?? 'Đặt lịch thành công!',
+            type: ToastType.success,
+          );
+          _fetch(); // refresh list
+          break;
+
+        case 'booking_status':
+          final status = data['status']?.toString();
+          const labels = {
+            'confirmed': 'Lịch hẹn đã được xác nhận!',
+            'completed': 'Lịch hẹn hoàn thành!',
+            'cancelled': 'Lịch hẹn bị hủy.',
+          };
+          if (status != null && labels.containsKey(status)) {
+            MoewToast.show(
+              context,
+              message: labels[status]!,
+              type: status == 'cancelled' ? ToastType.error : ToastType.success,
+            );
+            _fetch(); // refresh list
+          }
+          break;
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _mqttSub?.cancel();
+    super.dispose();
   }
 
   Future<void> _fetch() async {
@@ -46,17 +90,17 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Hủy lịch hẹn?'),
+        title: Text('Hủy lịch hẹn?'),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
           Text('Bạn muốn hủy lịch tại ${booking['clinic']?['name'] ?? 'phòng khám'}?', style: MoewTextStyles.body),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           TextField(controller: reasonCtrl, maxLines: 2, decoration: const InputDecoration(hintText: 'Lý do hủy (tùy chọn)')),
         ]),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Không')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text('Không')),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Hủy lịch', style: TextStyle(color: MoewColors.danger)),
+            child: Text('Hủy lịch', style: TextStyle(color: MoewColors.danger)),
           ),
         ],
       ),
@@ -115,17 +159,17 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
           height: 44,
           child: ListView(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: MoewSpacing.md),
+            padding: EdgeInsets.symmetric(horizontal: MoewSpacing.md),
             children: _statusTabs.map((t) {
               final active = _statusFilter == t['key'];
               return GestureDetector(
                 onTap: () {
-                  setState(() => _statusFilter = t['key'] as String?);
+                  setState(() => _statusFilter = t['key']);
                   _fetch();
                 },
                 child: Container(
-                  margin: const EdgeInsets.only(right: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  margin: EdgeInsets.only(right: 8),
+                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
                     color: active ? MoewColors.primary : MoewColors.white,
                     borderRadius: BorderRadius.circular(MoewRadius.full),
@@ -137,18 +181,18 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
             }).toList(),
           ),
         ),
-        const SizedBox(height: MoewSpacing.sm),
+        SizedBox(height: MoewSpacing.sm),
 
         // ── Booking list ──
         Expanded(
           child: _loading
-              ? const Center(child: CircularProgressIndicator(color: MoewColors.primary))
+              ? Center(child: CircularProgressIndicator(color: MoewColors.primary))
               : _bookings.isEmpty
-                  ? const EmptyState(icon: Icons.calendar_month, color: MoewColors.primary, message: 'Không có lịch hẹn nào')
+                  ? EmptyState(icon: Icons.calendar_month, color: MoewColors.primary, message: 'Không có lịch hẹn nào')
                   : RefreshIndicator(
                       onRefresh: _fetch,
                       child: ListView.builder(
-                        padding: const EdgeInsets.all(MoewSpacing.md),
+                        padding: EdgeInsets.all(MoewSpacing.md),
                         itemCount: _bookings.length,
                         itemBuilder: (ctx, i) => _buildBookingCard(_bookings[i] as Map<String, dynamic>),
                       ),
@@ -164,7 +208,7 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
     final canCancel = status == 'pending' || status == 'confirmed';
 
     return Container(
-      margin: const EdgeInsets.only(bottom: MoewSpacing.sm),
+      margin: EdgeInsets.only(bottom: MoewSpacing.sm),
       decoration: BoxDecoration(
         color: MoewColors.white,
         borderRadius: BorderRadius.circular(MoewRadius.lg),
@@ -172,22 +216,22 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
         border: Border(left: BorderSide(color: color, width: 3)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(MoewSpacing.md),
+        padding: EdgeInsets.all(MoewSpacing.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           // Header: clinic name + status
           Row(children: [
             Expanded(child: Text(
               (b['clinic'] is Map ? b['clinic']['name'] : '') ?? 'Phòng khám',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: MoewColors.textMain),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: MoewColors.textMain),
               overflow: TextOverflow.ellipsis,
             )),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(MoewRadius.full)),
               child: Text(_statusLabel(status), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: color)),
             ),
           ]),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
 
           // Info rows
           _infoRow(Icons.pets, b['pet'] is Map ? b['pet']['name'] ?? '' : ''),
@@ -201,14 +245,14 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
 
           // Cancel button
           if (canCancel) ...[
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: () => _cancelBooking(b),
-                icon: const Icon(Icons.cancel_outlined, size: 16, color: MoewColors.danger),
-                label: const Text('Hủy lịch hẹn', style: TextStyle(color: MoewColors.danger, fontWeight: FontWeight.w600)),
-                style: OutlinedButton.styleFrom(side: const BorderSide(color: MoewColors.danger), padding: const EdgeInsets.symmetric(vertical: 10)),
+                icon: Icon(Icons.cancel_outlined, size: 16, color: MoewColors.danger),
+                label: Text('Hủy lịch hẹn', style: TextStyle(color: MoewColors.danger, fontWeight: FontWeight.w600)),
+                style: OutlinedButton.styleFrom(side: BorderSide(color: MoewColors.danger), padding: EdgeInsets.symmetric(vertical: 10)),
               ),
             ),
           ],
@@ -218,12 +262,12 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
   }
 
   Widget _infoRow(IconData icon, String text, {Color? color}) {
-    if (text.isEmpty) return const SizedBox.shrink();
+    if (text.isEmpty) return SizedBox.shrink();
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: EdgeInsets.only(bottom: 4),
       child: Row(children: [
         Icon(icon, size: 14, color: color ?? MoewColors.textSub),
-        const SizedBox(width: 6),
+        SizedBox(width: 6),
         Expanded(child: Text(text, style: TextStyle(fontSize: 13, color: color ?? MoewColors.textSub), maxLines: 2, overflow: TextOverflow.ellipsis)),
       ]),
     );
