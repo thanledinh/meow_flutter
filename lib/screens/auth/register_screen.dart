@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
 import '../../api/auth_api.dart';
 import '../../widgets/toast.dart';
@@ -44,7 +45,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (!mounted) return;
       MoewToast.show(context, message: 'Đăng ký thành công! Đăng nhập để bắt đầu.', type: ToastType.success);
       Future.delayed(const Duration(seconds: 2), () {
-        if (mounted) Navigator.pop(context);
+        if (mounted) context.pop();
       });
     } catch (_) {
       if (mounted) MoewToast.show(context, message: 'Không thể kết nối server.', type: ToastType.error);
@@ -159,7 +160,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   children: [
                     Text('Đã có tài khoản? ', style: TextStyle(color: Theme.of(context).textTheme.bodySmall?.color, fontSize: 14)),
                     GestureDetector(
-                      onTap: () => Navigator.pop(context),
+                      onTap: () => context.pop(),
                       child: Text('Đăng nhập', style: TextStyle(color: MoewColors.primary, fontSize: 14, fontWeight: FontWeight.w700)),
                     ),
                   ],

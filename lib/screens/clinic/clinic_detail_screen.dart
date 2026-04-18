@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../config/theme.dart';
 import '../../api/clinic_api.dart';
@@ -71,7 +72,7 @@ class _ClinicDetailScreenState extends State<ClinicDetailScreen> {
           decoration: BoxDecoration(color: Colors.black26, borderRadius: BorderRadius.circular(12)),
           child: Icon(Icons.arrow_back, color: Colors.white, size: 20),
         ),
-        onPressed: () => Navigator.pop(context),
+        onPressed: () => context.pop(),
       ),
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(fit: StackFit.expand, children: [
@@ -434,13 +435,13 @@ class _ClinicDetailScreenState extends State<ClinicDetailScreen> {
       MoewToast.show(context, message: 'Phòng khám chưa cập nhật vị trí', type: ToastType.info);
       return;
     }
-    Navigator.pushNamed(context, '/guardian-map', arguments: {
+    context.push('/guardian-map', extra: {
       'destination': {'latitude': lat, 'longitude': lng, 'name': name},
     });
   }
 
   void _showBookingSheet() {
-    Navigator.pushNamed(context, '/book-appointment', arguments: {
+    context.push('/book-appointment', extra: {
       'clinicId': widget.clinicId,
       'clinicName': _clinic?['name']?.toString(),
     });

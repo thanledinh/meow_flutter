@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart' as geo;
@@ -180,7 +181,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
             top: MediaQuery.of(context).padding.top + 8,
             left: 12,
             child: GestureDetector(
-              onTap: () => Navigator.pop(context),
+              onTap: () => context.pop(),
               child: Container(
                 width: 44, height: 44,
                 decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: MoewShadows.card),

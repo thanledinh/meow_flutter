@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
 import '../../widgets/common_widgets.dart';
 
@@ -43,7 +44,7 @@ class HealthAlertsScreen extends StatelessWidget {
               const SizedBox(height: 28),
               if (petId != null)
                 ElevatedButton.icon(
-                  onPressed: () => Navigator.pushNamed(context, '/pet-detail', arguments: petId),
+                  onPressed: () => context.push('/pet-detail', extra: petId),
                   icon: const Icon(Icons.pets, size: 18),
                   label: const Text('Xem hồ sơ thú cưng'),
                   style: ElevatedButton.styleFrom(

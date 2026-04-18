@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../config/theme.dart';
 import '../../../api/pet_api.dart';
 import '../../../widgets/toast.dart';
@@ -109,7 +110,7 @@ class _EditPetBottomSheetState extends State<EditPetBottomSheet> {
     setState(() => saving = false);
     
     if (res.success) {
-      Navigator.pop(context);
+      context.pop();
       MoewToast.show(context, message: 'Đã cập nhật!', type: ToastType.success);
       widget.onSaved();
     } else {
@@ -125,7 +126,7 @@ class _EditPetBottomSheetState extends State<EditPetBottomSheet> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Row(children: [
             const Expanded(child: Text('Sửa thông tin', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800))),
-            IconButton(onPressed: () => Navigator.pop(context), icon: Icon(Icons.close)),
+            IconButton(onPressed: () => context.pop(), icon: Icon(Icons.close)),
           ]),
           SizedBox(height: 8),
           _field(nameCtrl, 'Tên *', Icons.pets),

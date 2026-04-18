@@ -50,3 +50,8 @@ app.*.map.json
 
 # Secrets
 lib/config/secrets.dart
+
+# Ignored AI & Testing Junk
+ai_control/posters/
+artifacts/
+window_dump.xml

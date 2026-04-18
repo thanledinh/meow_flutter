@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../config/theme.dart';
@@ -11,6 +12,24 @@ import '../../providers/auth_provider.dart';
 import '../../widgets/toast.dart';
 import '../../widgets/common_widgets.dart';
 import '../map/location_picker_screen.dart';
+
+// ---------------------------------------------------------------------------
+// Helper: đọc follower count an toàn từ Map
+//   Ưu tiên: followerCount → followersCount → 0
+//   Chấp nhận: int, num, String, null. Clamp âm về 0.
+// ---------------------------------------------------------------------------
+int _safeFollowerCount(Map<String, dynamic>? data) {
+  if (data == null) return 0;
+  final raw = data['followerCount'] ?? data['followersCount'];
+  if (raw == null) return 0;
+  if (raw is int) return raw < 0 ? 0 : raw;
+  if (raw is num) return raw.toInt() < 0 ? 0 : raw.toInt();
+  if (raw is String) {
+    final parsed = int.tryParse(raw) ?? (double.tryParse(raw)?.toInt() ?? 0);
+    return parsed < 0 ? 0 : parsed;
+  }
+  return 0;
+}
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -122,7 +141,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               leading: Container(padding: EdgeInsets.all(8), decoration: BoxDecoration(color: Colors.grey.shade200, shape: BoxShape.circle), child: Icon(Icons.photo_library, color: Colors.black87)),
               title: Text('Chọn từ thư viện'),
               onTap: () {
-                Navigator.pop(context);
+                context.pop();
                 _pickAvatar(ImageSource.gallery);
               },
             ),
@@ -130,7 +149,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               leading: Container(padding: EdgeInsets.all(8), decoration: BoxDecoration(color: Colors.grey.shade200, shape: BoxShape.circle), child: Icon(Icons.camera_alt, color: Colors.black87)),
               title: Text('Chụp ảnh mới'),
               onTap: () {
-                Navigator.pop(context);
+                context.pop();
                 _pickAvatar(ImageSource.camera);
               },
             ),
@@ -291,7 +310,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               children: [
                                 _statBox('${_profile!['followingCount'] ?? 0}', 'Đang theo dõi'),
                                 Container(width: 1, height: 30, color: MoewColors.border, margin: EdgeInsets.symmetric(horizontal: 20)),
-                                _statBox('${_profile!['followerCount'] ?? 0}', 'Người theo dõi'),
+                                // Dùng helper để đọc follower count an toàn
+                                _statBox('${_safeFollowerCount(_profile)}', 'Người theo dõi'),
                               ],
                             ),
                           ],
@@ -410,7 +430,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       SizedBox(height: MoewSpacing.lg),
 
                       // eKYC & Delete
-                      _actionTile('Xác minh danh tính (eKYC)', Icons.verified_outlined, MoewColors.success, () => Navigator.pushNamed(context, '/ekyc')),
+                      _actionTile('Xác minh danh tính (eKYC)', Icons.verified_outlined, MoewColors.success, () => context.push('/ekyc')),
                       SizedBox(height: MoewSpacing.sm),
                       _actionTile('Xóa tài khoản', Icons.delete_outline, MoewColors.danger, _confirmDelete),
                     ],
@@ -517,7 +537,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               if (!mounted) return;
               if (res.success) {
                 context.read<AuthProvider>().onLogout();
-                Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
+                context.go('/login');
               } else {
                 MoewToast.show(context, message: res.error ?? 'Lỗi', type: ToastType.error);
               }

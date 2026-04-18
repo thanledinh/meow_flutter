@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
 import '../../api/feeding_api.dart';
 import '../../widgets/toast.dart';
 import '../../widgets/common_widgets.dart';
 import '../../widgets/eat_status_picker.dart';
+import 'package:provider/provider.dart';
+import '../../repositories/pet_repository.dart';
 
 class FeedingTodayScreen extends StatefulWidget {
   const FeedingTodayScreen({super.key});
@@ -161,9 +164,11 @@ class _FeedingTodayScreenState extends State<FeedingTodayScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final hasPets = context.watch<PetRepository>().pets.isNotEmpty;
+
     if (_loading) {
       return Scaffold(
-        backgroundColor: MoewColors.background,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: const AppHeader(title: 'Cho ăn hôm nay', showBack: false),
         body: Center(child: CircularProgressIndicator(color: MoewColors.primary)),
       );
@@ -173,7 +178,7 @@ class _FeedingTodayScreenState extends State<FeedingTodayScreen> {
 
     if (_data == null || timeline.isEmpty) {
       return Scaffold(
-        backgroundColor: MoewColors.background,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: const AppHeader(title: 'Cho ăn hôm nay', showBack: false),
         body: Center(
           child: Padding(
@@ -196,7 +201,9 @@ class _FeedingTodayScreenState extends State<FeedingTodayScreen> {
                 ),
                 SizedBox(height: 12),
                 Text(
-                  'Bạn cần thêm thú cưng và thiết lập\n khẩu phần ăn trước nhé 🐾',
+                  hasPets 
+                    ? 'Hãy thêm thức ăn vào kho và lên lịch ăn\n cho bé cưng nhé 🍲'
+                    : 'Bạn cần thêm thú cưng và thiết lập\n khẩu phần ăn trước nhé 🐾',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 14, color: MoewColors.textSub, height: 1.5),
                 ),
@@ -204,9 +211,9 @@ class _FeedingTodayScreenState extends State<FeedingTodayScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: () => Navigator.pushNamed(context, '/add-pet'),
-                    icon: Icon(Icons.add_circle_outline, size: 20),
-                    label: Text('Thêm thú cưng ngay'),
+                    onPressed: () => context.push('/food-products'),
+                    icon: Icon(Icons.inventory_2, size: 20),
+                    label: Text('Quản lý Kho Thức Ăn'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: MoewColors.primary,
                       foregroundColor: Colors.white,
@@ -220,7 +227,7 @@ class _FeedingTodayScreenState extends State<FeedingTodayScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(
-                    onPressed: () => Navigator.pushNamed(context, '/feeding-plan'),
+                    onPressed: () => context.push('/feeding-plan'),
                     icon: Icon(Icons.calendar_today, size: 20),
                     label: Text('Thiết lập lịch ăn'),
                     style: OutlinedButton.styleFrom(
@@ -231,6 +238,23 @@ class _FeedingTodayScreenState extends State<FeedingTodayScreen> {
                     ),
                   ),
                 ),
+                if (!hasPets) ...[
+                  SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () => context.push('/add-pet'),
+                      icon: Icon(Icons.pets, size: 20),
+                      label: Text('Thêm thú cưng mới'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: MoewColors.textSub,
+                        side: BorderSide(color: MoewColors.border),
+                        padding: EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(MoewRadius.md)),
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -266,7 +290,7 @@ class _FeedingTodayScreenState extends State<FeedingTodayScreen> {
       length: 3,
       initialIndex: initialIndex,
       child: Scaffold(
-        backgroundColor: MoewColors.background,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: const AppHeader(title: 'Cho ăn hôm nay', showBack: false),
         body: Column(
           children: [
@@ -279,7 +303,7 @@ class _FeedingTodayScreenState extends State<FeedingTodayScreen> {
           Container(
             margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: MoewColors.white,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(MoewRadius.lg),
               boxShadow: MoewShadows.soft,
             ),
@@ -472,7 +496,7 @@ class _FeedingTodayScreenState extends State<FeedingTodayScreen> {
     return Container(
       margin: EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: MoewColors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(MoewRadius.lg),
         boxShadow: MoewShadows.soft,
         border: Border(left: BorderSide(color: borderColor, width: 3)),
@@ -538,10 +562,10 @@ class _FeedingTodayScreenState extends State<FeedingTodayScreen> {
 
   Widget _linkBtn(String label, IconData icon, String route) {
     return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, route),
+      onTap: () => context.push(route),
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(color: MoewColors.white, borderRadius: BorderRadius.circular(MoewRadius.md), boxShadow: MoewShadows.soft),
+        decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(MoewRadius.md), boxShadow: MoewShadows.soft),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           Icon(icon, size: 18, color: MoewColors.primary),
           SizedBox(width: 6),

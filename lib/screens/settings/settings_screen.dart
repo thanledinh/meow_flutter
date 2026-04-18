@@ -1,11 +1,11 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/common_widgets.dart';
-import '../../services/firebase_messaging_service.dart';
 import '../../providers/preferences_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../widgets/toast.dart';
+import 'package:go_router/go_router.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -14,8 +14,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _notifEnabled = true;
-  bool _notifLoading = false;
   String? _pendingTheme;
   bool _isSavingTheme = false;
 
@@ -27,32 +25,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     {'icon': Icons.notifications_outlined, 'label': 'Thông báo', 'sub': 'Xem lịch sử thông báo', 'route': '/notifications'},
   ];
 
-  @override
-  void initState() {
-    super.initState();
-    _loadNotifPref();
-  }
-
-  Future<void> _loadNotifPref() async {
-    final enabled = await FirebaseMessagingService().isEnabled();
-    if (mounted) setState(() => _notifEnabled = enabled);
-  }
-
-  Future<void> _toggleNotif(bool value) async {
-    setState(() { _notifEnabled = value; _notifLoading = true; });
-    final svc = FirebaseMessagingService();
-    if (value) {
-      await svc.enableNotifications();
-    } else {
-      await svc.disableNotifications();
-    }
-    if (mounted) setState(() => _notifLoading = false);
-  }
-
   Widget _buildThemeSelector(BuildContext context, PreferencesProvider provider) {
-    if (_pendingTheme == null) {
-      _pendingTheme = provider.prefs.presetTheme;
-    }
+    _pendingTheme ??= provider.prefs.presetTheme;
 
     final presets = [
       {'id': 'sakura', 'name': 'Sakura (Hồng)', 'color': Color(0xFFE8628A)},
@@ -157,8 +131,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onPressed: _isSavingTheme ? null : () async {
                   setState(() => _isSavingTheme = true);
                   await provider.setThemePreset(_pendingTheme!);
-                  setState(() => _isSavingTheme = false);
-                  if (mounted) MoewToast.show(context, message: 'Đã đổi giao diện thành công!', type: ToastType.success);
+                  if (!context.mounted) return;
+                  if (mounted) {
+                    setState(() => _isSavingTheme = false);
+                    MoewToast.show(context, message: 'Đã đổi giao diện thành công!', type: ToastType.success);
+                  }
                 },
                 child: _isSavingTheme 
                   ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
@@ -264,7 +241,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ..._items.map((item) => Padding(
             padding: EdgeInsets.only(bottom: 8),
             child: GestureDetector(
-              onTap: () => Navigator.pushNamed(context, item['route'] as String),
+              onTap: () => context.push(item['route'] as String),
               child: Container(
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -276,7 +253,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Container(
                     width: 42, height: 42,
                     decoration: BoxDecoration(
-                      color: MoewColors.primary.withOpacity(0.08),
+                      color: MoewColors.primary.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(item['icon'] as IconData, size: 20, color: MoewColors.primary),
@@ -293,6 +270,67 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           )),
           
+          SizedBox(height: 24),
+
+          // ═══ Logout ═══
+          GestureDetector(
+            onTap: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (_) => AlertDialog(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(MoewRadius.xl)),
+                  title: Text('Đăng xuất?', style: TextStyle(fontWeight: FontWeight.w800, color: MoewColors.textMain)),
+                  content: Text('Bạn sẽ cần đăng nhập lại để tiếp tục sử dụng MoewCare.', style: TextStyle(color: MoewColors.textSub)),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: Text('Huỷ', style: TextStyle(color: MoewColors.textSub)),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: Text('Đăng xuất', style: TextStyle(color: MoewColors.danger, fontWeight: FontWeight.w700)),
+                    ),
+                  ],
+                ),
+              );
+              if (confirm == true && context.mounted) {
+                await context.read<AuthProvider>().onLogout();
+              }
+            },
+            child: Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: MoewColors.danger.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(MoewRadius.lg),
+                border: Border.all(color: MoewColors.danger.withValues(alpha: 0.2)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 42, height: 42,
+                    decoration: BoxDecoration(
+                      color: MoewColors.danger.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(Icons.logout_rounded, size: 20, color: MoewColors.danger),
+                  ),
+                  SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Đăng xuất', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: MoewColors.danger)),
+                        SizedBox(height: 2),
+                        Text('Thoát khỏi tài khoản hiện tại', style: MoewTextStyles.caption),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.chevron_right, size: 20, color: MoewColors.danger.withValues(alpha: 0.5)),
+                ],
+              ),
+            ),
+          ),
+
           SizedBox(height: 24),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../config/theme.dart';
 import '../../api/auth_api.dart';
@@ -40,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
       MoewToast.show(context, message: 'Chào mừng trở lại!', type: ToastType.success);
       if (mounted) {
         context.read<AuthProvider>().onLoginSuccess();
-        Navigator.pushReplacementNamed(context, '/home');
+        context.replace('/home');
       }
     } catch (_) {
       if (mounted) MoewToast.show(context, message: 'Không thể kết nối server.', type: ToastType.error);
@@ -80,7 +81,13 @@ class _LoginScreenState extends State<LoginScreen> {
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.bodyLarge?.color),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.replace('/welcome');
+            }
+          },
         ),
       ),
       body: SafeArea(
@@ -189,7 +196,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     Text('Chưa có tài khoản? ', style: TextStyle(color: Theme.of(context).textTheme.bodySmall?.color, fontSize: 14)),
                     GestureDetector(
-                      onTap: () => Navigator.pushReplacementNamed(context, '/register'),
+                      onTap: () => context.replace('/register'),
                       child: Text('Đăng ký ngay', style: TextStyle(color: MoewColors.secondary, fontSize: 14, fontWeight: FontWeight.w700)),
                     ),
                   ],

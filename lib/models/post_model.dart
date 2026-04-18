@@ -70,7 +70,8 @@ class PostModel {
 
   Map<String, dynamic> toJson() {
     return {
-      '_id': id,
+      'id': id,    // CommentSheet và các widget dùng 'id'
+      '_id': id,   // Giữ backward compat với code cũ dùng '_id'
       'author': author?.toJson(),
       'pet': pet?.toJson(),
       'content': content,

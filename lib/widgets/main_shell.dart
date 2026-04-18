@@ -4,8 +4,8 @@ import '../config/theme.dart';
 import '../providers/preferences_provider.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/pet/pet_profile_screen.dart';
-import '../screens/feeding/feeding_today_screen.dart';
-import '../screens/ai/food_analysis_screen.dart';
+import '../screens/post/feed_screen.dart';
+import '../screens/settings/settings_screen.dart';
 import '../screens/notification/notification_screen.dart';
 
 class MainShell extends StatefulWidget {
@@ -44,10 +44,10 @@ class _MainShellState extends State<MainShell> {
     }
     switch (index) {
       case 0: return HomeScreen(key: _homeKey);
-      case 1: return const PetProfileScreen();
-      case 2: return const NotificationScreen();
-      case 3: return const FeedingTodayScreen();
-      case 4: return const FoodAnalysisScreen();
+      case 1: return const FeedScreen();       // Mạng xã hội
+      case 2: return const PetProfileScreen(); // Trung tâm (nút nổi bật)
+      case 3: return const NotificationScreen();
+      case 4: return const SettingsScreen(); // Cài đặt
       default: return SizedBox.shrink();
     }
   }
@@ -71,7 +71,7 @@ class _MainShellState extends State<MainShell> {
           index: _currentTab,
           children: List.generate(5, (i) => _buildTab(i)),
         ),
-        bottomNavigationBar: _buildBottomNav(),
+        bottomNavigationBar: _currentTab == 4 ? null : _buildBottomNav(),
       ),
     );
   }
@@ -104,10 +104,10 @@ class _MainShellState extends State<MainShell> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               Expanded(child: _navBtn(Icons.home_rounded, 'Trang chủ', 0)),
-              Expanded(child: _navBtn(Icons.restaurant_outlined, 'Cho ăn', 3)),
-              Expanded(child: _navCenterBtn(Icons.pets_rounded, 'Thú cưng', 1)),
-              Expanded(child: _navBtn(Icons.notifications_outlined, 'Thông báo', 2)),
-              Expanded(child: _navBtn(Icons.auto_awesome_outlined, 'AI', 4)),
+              Expanded(child: _navBtn(Icons.people_outline_rounded, 'Cộng đồng', 1)),
+              Expanded(child: _navCenterBtn(Icons.pets_rounded, 'Thú cưng', 2)),
+              Expanded(child: _navBtn(Icons.notifications_outlined, 'Thông báo', 3)),
+              Expanded(child: _navBtn(Icons.settings_outlined, 'Cài đặt', 4)),
             ],
           ),
         ),
@@ -149,7 +149,10 @@ class _MainShellState extends State<MainShell> {
                 fontWeight: active ? FontWeight.w700 : FontWeight.w500,
                 color: active ? MoewColors.accent : MoewColors.textSub,
               ),
-              child: Text(label),
+              child: MediaQuery(
+                data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
+                child: Text(label, overflow: TextOverflow.ellipsis, maxLines: 1),
+              ),
             ),
           ],
         ),
@@ -204,7 +207,10 @@ class _MainShellState extends State<MainShell> {
                 fontWeight: FontWeight.w800,
                 color: MoewColors.primary,
               ),
-              child: Text(label),
+              child: MediaQuery(
+                data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
+                child: Text(label, overflow: TextOverflow.ellipsis, maxLines: 1),
+              ),
             ),
           ],
         ),

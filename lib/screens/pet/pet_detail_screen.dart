@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:go_router/go_router.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -254,10 +255,10 @@ class _PetDetailScreenState extends State<PetDetailScreen> {
                   SizedBox(height: MoewSpacing.md),
 
                   // ═══ Quick Links ═══
-                  _actionRow('Theo dõi cân nặng', Icons.monitor_weight_outlined, MoewColors.accent, () => Navigator.pushNamed(context, '/pet-weight', arguments: widget.petId)),
-                  _actionRow('Lịch tiêm chủng', Icons.vaccines_outlined, MoewColors.success, () => Navigator.pushNamed(context, '/pet-vaccines', arguments: widget.petId)),
-                  _actionRow('Hồ sơ y tế', Icons.medical_services_outlined, MoewColors.primary, () => Navigator.pushNamed(context, '/medical', arguments: widget.petId)),
-                  _actionRow('Lịch sử ăn', Icons.restaurant_outlined, MoewColors.secondary, () => Navigator.pushNamed(context, '/food-history', arguments: widget.petId)),
+                  _actionRow('Theo dõi cân nặng', Icons.monitor_weight_outlined, MoewColors.accent, () => context.push('/pet-weight', extra: widget.petId)),
+                  _actionRow('Lịch tiêm chủng', Icons.vaccines_outlined, MoewColors.success, () => context.push('/pet-vaccines', extra: widget.petId)),
+                  _actionRow('Hồ sơ y tế', Icons.medical_services_outlined, MoewColors.primary, () => context.push('/medical', extra: widget.petId)),
+                  _actionRow('Lịch sử ăn', Icons.restaurant_outlined, MoewColors.secondary, () => context.push('/food-history', extra: widget.petId)),
                 ]),
     );
   }

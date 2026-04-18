@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:go_router/go_router.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -407,7 +408,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.close, color: MoewColors.textMain),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
         ),
         title: Text('Tạo bài viết mới', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 17, color: MoewColors.textMain)),
         centerTitle: true,
@@ -641,7 +642,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       trailing: _visibility == value ? Icon(Icons.check_circle, color: MoewColors.primary) : null,
       onTap: () {
         setState(() => _visibility = value);
-        Navigator.pop(context);
+        context.pop();
       },
       contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
     );

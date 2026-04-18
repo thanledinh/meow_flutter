@@ -11,6 +11,8 @@ import 'providers/preferences_provider.dart';
 import 'services/firebase_messaging_service.dart';
 import 'config/secrets.dart';
 import 'api/api_client.dart';
+import 'repositories/pet_repository.dart';
+import 'repositories/feed_repository.dart';
 
 /// Global navigator key — used by 401 handler to force-navigate to login
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -51,38 +53,26 @@ class MoewApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) {
             final auth = AuthProvider();
-            // Wire 401 → auto logout + force navigate to welcome
             ApiClient().setOnUnauthorized(() {
               auth.onLogout();
-              navigatorKey.currentState?.pushNamedAndRemoveUntil(
-                '/welcome',
-                (_) => false,
-              );
+              moewRouter.go('/welcome');
             });
             return auth;
           },
         ),
         ChangeNotifierProvider(create: (_) => PreferencesProvider()),
+        ChangeNotifierProvider(create: (_) => PetRepository()),
+        ChangeNotifierProvider(create: (_) => FeedRepository()),
       ],
-      child: Consumer2<AuthProvider, PreferencesProvider>(
-        builder: (context, auth, prefs, _) {
-          return MaterialApp(
+      child: Consumer4<AuthProvider, PreferencesProvider, PetRepository, FeedRepository>(
+        builder: (context, auth, prefs, petRepo, feedRepo, _) {
+          return MaterialApp.router(
             title: 'Moew',
-            navigatorKey: navigatorKey,
             debugShowCheckedModeBanner: false,
-            themeMode: prefs.prefs.themeMode == 'system'
-                ? ThemeMode.system
-                : (prefs.prefs.themeMode == 'dark'
-                      ? ThemeMode.dark
-                      : ThemeMode.light),
+            themeMode: prefs.prefs.themeMode == 'dark' ? ThemeMode.dark : ThemeMode.light,
             theme: MoewTheme.light,
             darkTheme: MoewTheme.dark,
-            onGenerateRoute: generateRoute,
-            home: auth.isLoading
-                ? const _SplashScreen()
-                : auth.isLoggedIn
-                ? const _AutoRoute(route: '/home')
-                : const _AutoRoute(route: '/welcome'),
+            routerConfig: moewRouter,
           );
         },
       ),
@@ -90,65 +80,3 @@ class MoewApp extends StatelessWidget {
   }
 }
 
-/// Splash screen hiển thị khi đang check auth
-class _SplashScreen extends StatelessWidget {
-  const _SplashScreen();
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Color(0xFFF8F4F0),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.pets, size: 64, color: Color(0xFF2196F3)),
-            SizedBox(height: 16),
-            Text(
-              'Moew',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 2,
-              ),
-            ),
-            SizedBox(height: 8),
-            CircularProgressIndicator(color: Color(0xFF2196F3), strokeWidth: 2),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Widget tự navigate đến route chỉ định sau khi build
-class _AutoRoute extends StatefulWidget {
-  final String route;
-  const _AutoRoute({required this.route});
-  @override
-  State<_AutoRoute> createState() => _AutoRouteState();
-}
-
-class _AutoRouteState extends State<_AutoRoute> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, widget.route, (_) => false);
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Color(0xFFF8F4F0),
-      body: Center(
-        child: CircularProgressIndicator(
-          color: Color(0xFF2196F3),
-          strokeWidth: 2,
-        ),
-      ),
-    );
-  }
-}

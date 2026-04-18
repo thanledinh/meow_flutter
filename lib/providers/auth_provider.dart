@@ -9,14 +9,25 @@ import 'package:google_sign_in/google_sign_in.dart';
 class AuthProvider extends ChangeNotifier {
   bool _isLoggedIn = false;
   Map<String, dynamic>? _user;
+  Map<String, dynamic>? _bootstrapData;
   bool _isLoading = true;
 
   bool get isLoggedIn => _isLoggedIn;
   Map<String, dynamic>? get user => _user;
+  Map<String, dynamic>? get bootstrapData => _bootstrapData;
   bool get isLoading => _isLoading;
 
   AuthProvider() {
     checkAuth();
+  }
+
+  Future<void> fetchBootstrap() async {
+    try {
+      final res = await ApiClient().get('/api/app/bootstrap');
+      if (res.success && res.data != null) {
+        _bootstrapData = (res.data as Map?)?['data'];
+      }
+    } catch (_) {}
   }
 
   /// Check token on startup
@@ -26,13 +37,16 @@ class AuthProvider extends ChangeNotifier {
       if (loggedIn) {
         _user = await TokenManager.getUser();
         _isLoggedIn = true;
+        await fetchBootstrap();
       } else {
         _user = null;
         _isLoggedIn = false;
+        _bootstrapData = null;
       }
     } catch (e) {
       _isLoggedIn = false;
       _user = null;
+      _bootstrapData = null;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -43,6 +57,7 @@ class AuthProvider extends ChangeNotifier {
   Future<void> onLoginSuccess() async {
     _user = await TokenManager.getUser();
     _isLoggedIn = true;
+    await fetchBootstrap();
     notifyListeners();
     // Kết nối MQTT — field 'id' trong user object chính là Firebase UID
     final userId = _user?['id']?.toString();

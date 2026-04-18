@@ -4,6 +4,10 @@ import 'endpoints.dart';
 class ClinicApi {
   static final _client = ApiClient();
 
+  /// Data siêu nhẹ chỉ để ghim lên bản đồ (id, name, lat, lng, avatar)
+  static Future<ApiResponse> getMarkers() =>
+      _client.get(Endpoints.clinicMarkers, auth: false);
+
   /// Tìm phòng khám gần nhất theo GPS
   static Future<ApiResponse> getNearby(double lat, double lng,
           {int radius = 10,

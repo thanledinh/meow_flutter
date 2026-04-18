@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
 import '../../api/medical_api.dart';
 import '../../utils/parse_utils.dart';
@@ -84,7 +85,7 @@ class _MedicalScreenState extends State<MedicalScreen> with SingleTickerProvider
       ]),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final result = await Navigator.pushNamed(context, '/add-medical', arguments: {'petId': widget.petId, 'type': ['medical', 'vaccination', 'appointment'][_tab]});
+          final result = await context.push('/add-medical', extra: {'petId': widget.petId, 'type': ['medical', 'vaccination', 'appointment'][_tab]});
           if (result == true) _fetchAll();
         },
         backgroundColor: MoewColors.primary,
@@ -105,7 +106,7 @@ class _MedicalScreenState extends State<MedicalScreen> with SingleTickerProvider
           final title = (item['title'] ?? item['name'] ?? item['vaccineName'] ?? item['reason'] ?? 'Bản ghi').toString();
           final date = item['startDate']?.toString() ?? item['date']?.toString() ?? '';
           return GestureDetector(
-            onTap: () => Navigator.pushNamed(context, '/medical-detail', arguments: item),
+            onTap: () => context.push('/medical-detail', extra: item),
             child: Container(
               margin: EdgeInsets.only(bottom: MoewSpacing.sm),
               padding: EdgeInsets.all(MoewSpacing.md),
@@ -118,7 +119,7 @@ class _MedicalScreenState extends State<MedicalScreen> with SingleTickerProvider
                   if (date.length >= 10) Text(date.substring(0, 10), style: MoewTextStyles.caption),
                 ])),
                 GestureDetector(
-                  onTap: () => Navigator.pushNamed(context, '/cost-breakdown', arguments: {'petId': widget.petId, 'recordId': item['id'] ?? item['_id'], 'type': ['medical', 'vaccination', 'appointment'][_tab]}),
+                  onTap: () => context.push('/cost-breakdown', extra: {'petId': widget.petId, 'recordId': item['id'] ?? item['_id'], 'type': ['medical', 'vaccination', 'appointment'][_tab]}),
                   child: Container(
                     padding: EdgeInsets.all(8),
                     decoration: BoxDecoration(color: MoewColors.tintAmber, borderRadius: BorderRadius.circular(MoewRadius.sm)),

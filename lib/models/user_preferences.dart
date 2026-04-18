@@ -10,7 +10,7 @@ class UserPreferences {
   final String? featuredPetId;
 
   UserPreferences({
-    this.themeMode = 'system',
+    this.themeMode = 'light',
     this.presetTheme = 'sakura',
     this.language = 'vi',
     this.weightUnit = 'kg',
@@ -22,8 +22,11 @@ class UserPreferences {
   });
 
   factory UserPreferences.fromJson(Map<String, dynamic> json) {
+    String tMode = json['themeMode']?.toString() ?? 'light';
+    if (tMode == 'system') tMode = 'light';
+
     return UserPreferences(
-      themeMode: json['themeMode'] ?? 'system',
+      themeMode: tMode,
       presetTheme: json['presetTheme'] ?? 'sakura',
       language: json['language'] ?? 'vi',
       weightUnit: json['weightUnit'] ?? 'kg',

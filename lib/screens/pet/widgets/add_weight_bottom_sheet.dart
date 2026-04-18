@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../config/theme.dart';
 import '../../../api/pet_api.dart';
 import '../../../widgets/toast.dart';
@@ -44,7 +45,7 @@ class _AddWeightBottomSheetState extends State<AddWeightBottomSheet> {
     setState(() => saving = false);
     
     if (res.success) {
-      Navigator.pop(context);
+      context.pop();
       MoewToast.show(context, message: 'Đã ghi nhận!', type: ToastType.success);
       widget.onSaved();
     } else {

@@ -4,6 +4,7 @@ import '../../config/theme.dart';
 import '../../api/pet_api.dart';
 import '../../widgets/toast.dart';
 import '../../widgets/common_widgets.dart';
+import '../../widgets/weight_chart.dart';
 
 class PetWeightScreen extends StatefulWidget {
   final dynamic petId;
@@ -187,30 +188,10 @@ class _PetWeightScreenState extends State<PetWeightScreen> {
     final chart = _data!['chart'] as List? ?? [];
     if (chart.isEmpty) return SizedBox();
 
-    final weights = chart.map<double>((c) => (c['weight'] as num).toDouble()).toList();
-    final minW = weights.reduce(min) - 0.3;
-    final maxW = weights.reduce(max) + 0.3;
-    final range = maxW - minW;
-
-    return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(color: MoewColors.white, borderRadius: BorderRadius.circular(MoewRadius.lg), boxShadow: MoewShadows.soft),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('Biểu đồ cân nặng', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
-        SizedBox(height: 12),
-        SizedBox(
-          height: 120,
-          child: CustomPaint(
-            painter: _WeightChartPainter(weights, minW, range),
-            size: Size.infinite,
-          ),
-        ),
-        SizedBox(height: 6),
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text(chart.first['date']?.toString().substring(5, 10) ?? '', style: TextStyle(fontSize: 9, color: MoewColors.textSub)),
-          Text(chart.last['date']?.toString().substring(5, 10) ?? '', style: TextStyle(fontSize: 9, color: MoewColors.textSub)),
-        ]),
-      ]),
+    return WeightChartBox(
+      chartData: chart,
+      height: 120,
+      showTitle: true,
     );
   }
 
@@ -247,34 +228,3 @@ class _PetWeightScreenState extends State<PetWeightScreen> {
   }
 }
 
-class _WeightChartPainter extends CustomPainter {
-  final List<double> weights;
-  final double minW;
-  final double range;
-  _WeightChartPainter(this.weights, this.minW, this.range);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (weights.length < 2 || range <= 0) return;
-    final paint = Paint()..color = MoewColors.primary..style = PaintingStyle.stroke..strokeWidth = 2.5..strokeCap = StrokeCap.round;
-    final fillPaint = Paint()..shader = LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [MoewColors.primary.withValues(alpha: 0.2), MoewColors.primary.withValues(alpha: 0.0)]).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
-    final dotPaint = Paint()..color = MoewColors.primary..style = PaintingStyle.fill;
-
-    final path = Path();
-    final fillPath = Path();
-    for (int i = 0; i < weights.length; i++) {
-      final x = weights.length == 1 ? size.width / 2 : i / (weights.length - 1) * size.width;
-      final y = size.height - ((weights[i] - minW) / range * size.height);
-      if (i == 0) { path.moveTo(x, y); fillPath.moveTo(x, size.height); fillPath.lineTo(x, y); }
-      else { path.lineTo(x, y); fillPath.lineTo(x, y); }
-      canvas.drawCircle(Offset(x, y), 3, dotPaint);
-    }
-    fillPath.lineTo(size.width, size.height);
-    fillPath.close();
-    canvas.drawPath(fillPath, fillPaint);
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter old) => true;
-}

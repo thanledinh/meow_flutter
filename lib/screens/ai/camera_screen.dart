@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../config/theme.dart';
@@ -33,7 +34,7 @@ class _CameraScreenState extends State<CameraScreen> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        leading: IconButton(icon: Icon(Icons.arrow_back, color: Colors.white), onPressed: () => Navigator.pop(context)),
+        leading: IconButton(icon: Icon(Icons.arrow_back, color: Colors.white), onPressed: () => context.pop()),
         title: Text('Camera', style: TextStyle(color: Colors.white)),
       ),
       body: _imagePath != null

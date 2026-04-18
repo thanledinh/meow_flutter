@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
 import '../../api/feeding_api.dart';
 import '../../widgets/common_widgets.dart';
@@ -44,7 +45,7 @@ class _ChatSessionsScreenState extends State<ChatSessionsScreen> {
                     final s = _sessions[i] as Map<String, dynamic>;
                     final date = s['updatedAt']?.toString().substring(0, 10) ?? '';
                     return GestureDetector(
-                      onTap: () => Navigator.pushNamed(context, '/ai-chat', arguments: {'sessionId': s['id'], 'petId': null}),
+                      onTap: () => context.push('/ai-chat', extra: {'sessionId': s['id'], 'petId': null}),
                       child: Container(
                         margin: EdgeInsets.only(bottom: 10),
                         padding: EdgeInsets.all(14),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import '../../config/theme.dart';
 
@@ -24,7 +25,7 @@ class MoewNotFound extends StatelessWidget {
           Text(message, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: MoewColors.textSub)),
           SizedBox(height: 16),
           TextButton.icon(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.pop(),
             icon: Icon(Icons.arrow_back, size: 18),
             label: Text('Quay lại'),
             style: TextButton.styleFrom(foregroundColor: MoewColors.primary),

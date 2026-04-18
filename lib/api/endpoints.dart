@@ -112,8 +112,12 @@ class Endpoints {
   static String petVaccineDetail(dynamic petId, dynamic vaccineId) => '/pets/$petId/vaccines/$vaccineId';
   static const petVaccinesUpcoming = '/pets/vaccines/upcoming';
 
+  // ─── Aggregated Schedule (1 call thay Many) ───────────────
+  static String petSchedule(dynamic petId) => '/pets/$petId/schedule';
+
   // ─── Clinics ──────────────────────────
   static const clinics = '/clinics';
+  static const clinicMarkers = '/clinics/markers'; // API siêu nhẹ cho map pins
   static String clinicNearby(double lat, double lng,
           {int radius = 10, String sort = 'distance', int page = 1, int limit = 20}) =>
       '/clinics/nearby?lat=$lat&lng=$lng&radius=$radius&sort=$sort&page=$page&limit=$limit';
@@ -132,10 +136,16 @@ class Endpoints {
   static String sosCancel(dynamic id) => '/sos/$id/cancel';
   static const sosHistory = '/sos';
 
-  // ─── Wallet ───────────────────────────
+  // ─── Wallet & Expenses ──────────────────
   static const wallet = '/wallet';
   static const walletTopup = '/wallet/topup';
   static const walletRepay = '/wallet/repay';
+
+  static const expenses = '/expenses';
+  static String expenseDetail(dynamic id) => '/expenses/$id';
+  static const expenseSummary = '/expenses/summary';
+  static const expenseCalendar = '/expenses/calendar';
+  static const expenseDay = '/expenses/day';
 
   // ─── Feeding System ───────────────────
   static const feedingProducts = '/feeding/products';
@@ -149,6 +159,7 @@ class Endpoints {
   static const feedingToday = '/feeding/today';
   static String feedingConfirm(dynamic scheduleId) => '/feeding/confirm/$scheduleId';
   static const feedingStreak = '/feeding/streak';
+  static const feedingWeekly = '/feeding/weekly';
   static const feedingTransition = '/feeding/transition';
 
   // ─── Nutrition Stats ──────────────────

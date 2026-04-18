@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import '../../config/theme.dart';
@@ -205,7 +206,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.close, color: MoewColors.textMain),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
         ),
         title: Text('Sửa bài viết', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 17, color: MoewColors.textMain)),
         centerTitle: true,
@@ -415,7 +416,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
       trailing: _visibility == value ? Icon(Icons.check_circle, color: MoewColors.primary) : null,
       onTap: () {
         setState(() => _visibility = value);
-        Navigator.pop(context);
+        context.pop();
       },
       contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
     );

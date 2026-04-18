@@ -56,4 +56,8 @@ class PetApi {
 
   static Future<ApiResponse> getUpcomingVaccines({int days = 30}) =>
       _client.get('${Endpoints.petVaccinesUpcoming}?days=$days');
+
+  /// Aggregated schedule — gộp feeding/vaccine/booking/weigh_in vào 1 call duy nhất
+  static Future<ApiResponse> getSchedule(dynamic petId) =>
+      _client.get(Endpoints.petSchedule(petId));
 }

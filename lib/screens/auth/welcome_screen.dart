@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../config/theme.dart';
 import '../../api/auth_api.dart';
@@ -71,7 +72,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             type: ToastType.success,
           );
           context.read<AuthProvider>().onLoginSuccess();
-          Navigator.pushReplacementNamed(context, '/home');
+          context.replace('/home');
         }
       }
     } catch (e) {
@@ -119,7 +120,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             type: ToastType.success,
           );
           context.read<AuthProvider>().onLoginSuccess();
-          Navigator.pushReplacementNamed(context, '/home');
+          context.replace('/home');
         }
       }
     } catch (e) {
@@ -256,7 +257,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(context, '/login'),
+                  onPressed: () => context.push('/login'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColor,
                     padding: const EdgeInsets.symmetric(vertical: 14),

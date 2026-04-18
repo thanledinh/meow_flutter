@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
 import '../../api/notification_api.dart';
 import '../../widgets/common_widgets.dart';
@@ -86,14 +87,14 @@ class _NotificationScreenState extends State<NotificationScreen> {
     switch (screen) {
       case 'Feeding':
       case 'FeedingDetail':
-        Navigator.pushNamed(context, '/food-history', arguments: data['scheduleId']);
+        context.push('/food-history', extra: data['scheduleId']);
         break;
       case 'Vaccine':
       case 'VaccinationDetail':
         // Navigate to vaccine screen (would need petId)
         break;
       case 'BookingDetail':
-        Navigator.pushNamed(context, '/booking-history');
+        context.push('/booking-history');
         break;
       case 'Home':
       default:

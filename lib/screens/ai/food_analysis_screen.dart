@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 import '../../config/theme.dart';
@@ -35,11 +37,24 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
   Future<void> _fetchPets() async {
     final res = await PetApi.getAll();
     if (!mounted) return;
-    final pets = toList(res.data);
+    final rawPets = toList(res.data);
+    // Deduplicate by id — API có thể trả duplicate, gây crash DropdownButton
+    final seen = LinkedHashMap<dynamic, dynamic>();
+    for (final p in rawPets) {
+      final id = p['id'];
+      if (id != null && !seen.containsKey(id)) {
+        seen[id] = p;
+      }
+    }
+    final pets = seen.values.toList();
     setState(() {
       _pets = pets;
-      if (_selectedPetId == null && _pets.isNotEmpty) {
-        _selectedPetId = _pets[0]['id'];
+      // Nếu selectedPetId truyền vào không nằm trong list → reset về cái đầu
+      final ids = pets.map((p) => p['id']).toSet();
+      if (_selectedPetId != null && !ids.contains(_selectedPetId)) {
+        _selectedPetId = pets.isNotEmpty ? pets[0]['id'] : null;
+      } else if (_selectedPetId == null && pets.isNotEmpty) {
+        _selectedPetId = pets[0]['id'];
       }
     });
   }
@@ -99,15 +114,22 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
               value: _selectedPetId,
               isExpanded: true,
               icon: Icon(Icons.expand_more, color: MoewColors.textSub),
-              items: _pets.map((p) => DropdownMenuItem(
-                value: p['id'],
-                child: Row(children: [
-                  Icon(Icons.pets, size: 18, color: MoewColors.secondary),
-                  SizedBox(width: 10),
-                  Text(p['name'] ?? 'Pet #${p['id']}', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
-                  if (p['breed'] != null) ...[SizedBox(width: 8), Text('(${p['breed']})', style: MoewTextStyles.caption)],
-                ]),
-              )).toList(),
+              items: () {
+                // Guard: dedup by id tại build-time, tránh crash kể cả khi _pets có duplicate
+                final seen = <dynamic>{};
+                return _pets
+                    .where((p) => p['id'] != null && seen.add(p['id']))
+                    .map((p) => DropdownMenuItem<dynamic>(
+                      value: p['id'],
+                      child: Row(children: [
+                        Icon(Icons.pets, size: 18, color: MoewColors.secondary),
+                        SizedBox(width: 10),
+                        Text(p['name'] ?? 'Pet #${p['id']}', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                        if (p['breed'] != null) ...[SizedBox(width: 8), Text('(${p['breed']})', style: MoewTextStyles.caption)],
+                      ]),
+                    ))
+                    .toList();
+              }(),
               onChanged: (v) => setState(() => _selectedPetId = v),
             )),
           ),
@@ -216,7 +238,7 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
           SizedBox(height: MoewSpacing.md),
           // Chat about this result
           OutlinedButton.icon(
-            onPressed: () => Navigator.pushNamed(context, '/ai-chat', arguments: {'petId': _selectedPetId, 'foodLogId': _result!['id']}),
+            onPressed: () => context.push('/ai-chat', extra: {'petId': _selectedPetId, 'foodLogId': _result!['id']}),
             icon: Icon(Icons.chat_bubble_outline, color: MoewColors.accent),
             label: Text('Hỏi AI thêm', style: TextStyle(color: MoewColors.accent, fontWeight: FontWeight.w700)),
             style: OutlinedButton.styleFrom(side: BorderSide(color: MoewColors.accent), padding: EdgeInsets.symmetric(vertical: 14)),

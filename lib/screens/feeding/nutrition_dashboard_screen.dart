@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:shimmer/shimmer.dart';
 import 'package:lottie/lottie.dart';
@@ -254,7 +255,7 @@ class _NutritionDashboardScreenState extends State<NutritionDashboardScreen>
                 onTap: () {
                   setState(() => _selectedPetId = p['id']);
                   _fetchData();
-                  Navigator.pop(context);
+                  context.pop();
                 },
                 child: Container(
                   margin: const EdgeInsets.only(bottom: 10),

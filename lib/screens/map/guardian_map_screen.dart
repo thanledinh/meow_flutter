@@ -1,11 +1,16 @@
 import 'dart:async';
+import 'package:go_router/go_router.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'dart:ui' as ui;
+import 'dart:typed_data';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../config/theme.dart';
 import '../../widgets/moew_loading.dart';
+import '../../api/clinic_api.dart'; // Thêm API Clinics
 
 import '../../config/secrets.dart';
 const String _mapboxToken = mapboxSecretToken;
@@ -39,6 +44,10 @@ class _GuardianMapScreenState extends State<GuardianMapScreen> {
   bool _followMode = false;
   bool _autoNavDone = false;
 
+  // Markers
+  PointAnnotationManager? _pointAnnotationManager;
+  final Map<String, dynamic> _annotationDataMap = {};
+
   // Search
   final _searchCtrl = TextEditingController();
   List<dynamic> _results = [];
@@ -62,11 +71,24 @@ class _GuardianMapScreenState extends State<GuardianMapScreen> {
   void dispose() {
     _searchCtrl.dispose();
     _searchTimer?.cancel();
-    // Clean up map layers before dispose to prevent Surface crash
-    try { _mapboxMap?.style.removeStyleLayer('route-line'); } catch (_) {}
-    try { _mapboxMap?.style.removeStyleSource('route-source'); } catch (_) {}
+    // Không nên gọi removeStyleLayer trong dispose vì MapboxView đang bị huỷ bởi OS
+    // gây ra PlatformException / C++ crash.
     _mapboxMap = null;
     super.dispose();
+  }
+
+  Future<void> _safeCleanRoute() async {
+    if (_mapboxMap == null) return;
+    try {
+      if (await _mapboxMap!.style.styleLayerExists('route-line')) {
+        await _mapboxMap!.style.removeStyleLayer('route-line');
+      }
+      if (await _mapboxMap!.style.styleSourceExists('route-source')) {
+        await _mapboxMap!.style.removeStyleSource('route-source');
+      }
+    } catch (e) {
+      debugPrint('Mapbox clean route ignore error: $e');
+    }
   }
 
   Future<void> _getLocation() async {
@@ -98,8 +120,189 @@ class _GuardianMapScreenState extends State<GuardianMapScreen> {
         MapAnimationOptions(duration: 800),
       );
     }
+    // Add annotations manager
+    map.annotations.createPointAnnotationManager().then((manager) {
+      _pointAnnotationManager = manager;
+      _pointAnnotationManager!.addOnPointAnnotationClickListener(_AnnotationClickListener((annotation) {
+        final data = _annotationDataMap[annotation.id];
+        if (data != null) {
+          _showClinicBottomSheet(data);
+        }
+      }));
+      _loadMarkers();
+    });
+
     // Auto-navigate to destination (from ClinicDetail)
     _autoNavigate();
+  }
+
+  Future<void> _loadMarkers() async {
+    try {
+      final res = await ClinicApi.getMarkers();
+      if (!res.success || res.data?['data'] == null) return;
+      final list = res.data!['data'] as List;
+
+      final optionsList = <PointAnnotationOptions>[];
+      final clinicList = <Map<String, dynamic>>[];
+
+      for (var item in list) {
+        final lat = (item['lat'] as num?)?.toDouble();
+        final lng = (item['lng'] as num?)?.toDouble();
+        if (lat == null || lng == null) continue;
+
+        // Giảm kích thước xuống 80 để chống loạn (như user y/c bấm nhầm)
+        final avatarUrl = item['avatar']?.toString() ?? '';
+        final imgBytes = await _createCircularMarker(avatarUrl, size: 70); 
+
+        optionsList.add(PointAnnotationOptions(
+          geometry: Point(coordinates: Position(lng, lat)),
+          image: imgBytes,
+          iconAnchor: IconAnchor.BOTTOM,
+        ));
+        clinicList.add(item);
+      }
+
+      if (_pointAnnotationManager != null && optionsList.isNotEmpty) {
+        final annotations = await _pointAnnotationManager!.createMulti(optionsList);
+        for (var i = 0; i < annotations.length; i++) {
+          final ann = annotations[i];
+          if (ann?.id != null) {
+            _annotationDataMap[ann!.id] = clinicList[i];
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Load markers error: $e');
+    }
+  }
+
+  Future<Uint8List> _createCircularMarker(String url, {int size = 70}) async {
+    try {
+      final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 3));
+      final ui.Codec codec = await ui.instantiateImageCodec(response.bodyBytes, targetWidth: size, targetHeight: size);
+      final ui.FrameInfo fi = await codec.getNextFrame();
+      final ui.Image image = fi.image;
+
+      final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
+      final Canvas canvas = Canvas(pictureRecorder);
+      final Paint paint = Paint()..isAntiAlias = true;
+
+      // Draw background/border
+      final double radius = size / 2;
+      canvas.drawCircle(Offset(radius, radius), radius, Paint()..color = MoewColors.primary);
+
+      // Clip image inside
+      final double innerRadius = radius - 4; // 4px border
+      canvas.save();
+      canvas.clipPath(Path()..addOval(Rect.fromCircle(center: Offset(radius, radius), radius: innerRadius)));
+      canvas.drawImage(image, Offset.zero, paint);
+      canvas.restore();
+
+      final ui.Image finalImage = await pictureRecorder.endRecording().toImage(size, size);
+      final ByteData? byteData = await finalImage.toByteData(format: ui.ImageByteFormat.png);
+      return byteData!.buffer.asUint8List();
+    } catch (_) { // Fallback circle if image load fails
+      final ui.PictureRecorder recorder = ui.PictureRecorder();
+      final Canvas canvas = Canvas(recorder);
+      canvas.drawCircle(Offset(size/2, size/2), size/2, Paint()..color = MoewColors.primary);
+      final ui.Image img = await recorder.endRecording().toImage(size, size);
+      final ByteData? bData = await img.toByteData(format: ui.ImageByteFormat.png);
+      return bData!.buffer.asUint8List();
+    }
+  }
+
+  void _showClinicBottomSheet(Map<String, dynamic> data) {
+    bool isNavigating = false;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black12,
+      builder: (context) {
+        return NotificationListener<DraggableScrollableNotification>(
+          onNotification: (notification) {
+            // Khi kéo thanh trượt vượt 85%, ném qua màn chi tiết
+            if (notification.extent >= 0.85 && !isNavigating) {
+              isNavigating = true;
+              Navigator.pop(context); // Đóng BottomSheet
+              context.push('/clinic-detail', extra: data['id']);
+            }
+            return false;
+          },
+          child: DraggableScrollableSheet(
+            initialChildSize: 0.3,
+            minChildSize: 0.2,
+            maxChildSize: 0.9,
+            builder: (context, scrollController) {
+              return Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 10, offset: const Offset(0, -5))],
+                ),
+                child: ListView(
+                  controller: scrollController,
+                  padding: EdgeInsets.zero,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40, height: 5,
+                        margin: const EdgeInsets.only(bottom: 20),
+                        decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: CachedNetworkImage(
+                            imageUrl: data['avatar']?.toString() ?? '',
+                            width: 80, height: 80, fit: BoxFit.cover,
+                            errorWidget: (_,__,___) => Container(width: 80, height: 80, color: Colors.grey[200], child: const Icon(Icons.apartment)),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(data['name']?.toString() ?? 'Phòng Khám', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: MoewColors.textMain)),
+                              const SizedBox(height: 6),
+                              Row(children: [
+                                  Icon(Icons.swipe_up, size: 14, color: MoewColors.primary),
+                                  SizedBox(width: 4),
+                                  Text('Vuốt lên để xem chi tiết', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: MoewColors.primary)),
+                              ]),
+                            ],
+                          )
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          context.push('/clinic-detail', extra: data['id']);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: MoewColors.primary,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        child: const Text('Xem Chi Tiết Ngay', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white)),
+                      ),
+                    )
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
   }
 
   void _autoNavigate() {
@@ -205,8 +408,7 @@ class _GuardianMapScreenState extends State<GuardianMapScreen> {
   }
 
   Future<void> _drawRoute(Map<String, dynamic> geometry) async {
-    try { await _mapboxMap?.style.removeStyleLayer('route-line'); } catch (_) {}
-    try { await _mapboxMap?.style.removeStyleSource('route-source'); } catch (_) {}
+    await _safeCleanRoute();
 
     final geojson = jsonEncode({
       'type': 'FeatureCollection',
@@ -237,8 +439,7 @@ class _GuardianMapScreenState extends State<GuardianMapScreen> {
   void _clearAll() {
     _searchCtrl.clear();
     setState(() { _results = []; _selectedPlace = null; _routeInfo = null; _routeSteps = []; _followMode = false; });
-    try { _mapboxMap?.style.removeStyleLayer('route-line'); } catch (_) {}
-    try { _mapboxMap?.style.removeStyleSource('route-source'); } catch (_) {}
+    _safeCleanRoute();
     FocusScope.of(context).unfocus();
   }
 
@@ -284,7 +485,7 @@ class _GuardianMapScreenState extends State<GuardianMapScreen> {
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) {
-          Navigator.pushNamedAndRemoveUntil(context, '/home', (_) => false);
+          context.go('/home');
         }
       },
       child: Scaffold(
@@ -308,7 +509,7 @@ class _GuardianMapScreenState extends State<GuardianMapScreen> {
           left: 12, right: 12,
           child: Column(children: [
             Row(children: [
-              _circleBtn(Icons.arrow_back, () => Navigator.pop(context)),
+              _circleBtn(Icons.arrow_back, () => context.pop()),
               SizedBox(width: 8),
               Expanded(child: Container(
                 height: 46,
@@ -478,5 +679,15 @@ class _GuardianMapScreenState extends State<GuardianMapScreen> {
         child: Icon(icon, size: 22, color: active ? Colors.white : MoewColors.primary),
       ),
     );
+  }
+}
+
+class _AnnotationClickListener extends OnPointAnnotationClickListener {
+  final void Function(PointAnnotation annotation) onAnnotationClick;
+  _AnnotationClickListener(this.onAnnotationClick);
+
+  @override
+  void onPointAnnotationClick(PointAnnotation annotation) {
+    onAnnotationClick(annotation);
   }
 }

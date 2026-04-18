@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../config/theme.dart';
 import '../../api/clinic_api.dart';
@@ -65,7 +66,7 @@ class _ClinicListScreenState extends State<ClinicListScreen> {
                       itemBuilder: (ctx, i) {
                         final c = _clinics[i] as Map<String, dynamic>;
                         return GestureDetector(
-                          onTap: () => Navigator.pushNamed(context, '/clinic-detail', arguments: c['id']),
+                          onTap: () => context.push('/clinic-detail', extra: c['id']),
                           child: Container(
                             margin: EdgeInsets.only(bottom: MoewSpacing.sm),
                             padding: EdgeInsets.all(MoewSpacing.md),

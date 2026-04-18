@@ -54,6 +54,14 @@ class FeedingApi {
   static Future<ApiResponse> getStreak() =>
       _client.get(Endpoints.feedingStreak);
 
+  static Future<ApiResponse> getWeekly({String? petId, String? date}) {
+    final params = <String>[];
+    if (petId != null) params.add('petId=$petId');
+    if (date != null) params.add('date=$date');
+    final query = params.isNotEmpty ? '?${params.join('&')}' : '';
+    return _client.get('${Endpoints.feedingWeekly}$query');
+  }
+
   // ─── Transition (Chuyển đổi thức ăn) ─────
   static Future<ApiResponse> createTransition(Map<String, dynamic> data) =>
       _client.post(Endpoints.feedingTransition, data);

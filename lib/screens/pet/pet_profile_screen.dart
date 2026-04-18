@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../config/theme.dart';
 import '../../api/pet_api.dart';
@@ -78,7 +79,7 @@ class _PetProfileScreenState extends State<PetProfileScreen> {
       backgroundColor: MoewColors.background,
       appBar: AppHeader(title: 'Thú cưng', showBack: false, actions: [
         IconButton(icon: Icon(Icons.add_circle_outline, color: MoewColors.primary), onPressed: () async {
-          final result = await Navigator.pushNamed(context, '/add-pet');
+          final result = await context.push('/add-pet');
           if (result == true) _fetch();
         }),
       ]),
@@ -86,7 +87,7 @@ class _PetProfileScreenState extends State<PetProfileScreen> {
           ? Center(child: CircularProgressIndicator(color: MoewColors.primary))
           : _pets.isEmpty
               ? EmptyState(icon: Icons.pets, color: MoewColors.secondary, message: 'Chưa có thú cưng nào', buttonLabel: 'Thêm Boss', onAction: () async {
-                  final result = await Navigator.pushNamed(context, '/add-pet');
+                  final result = await context.push('/add-pet');
                   if (result == true) _fetch();
                 })
               : RefreshIndicator(
@@ -99,7 +100,7 @@ class _PetProfileScreenState extends State<PetProfileScreen> {
                       IconData genderIcon = pet['gender'] == 'male' ? Icons.male : (pet['gender'] == 'female' ? Icons.female : Icons.pets);
                       
                       return GestureDetector(
-                        onTap: () => Navigator.pushNamed(context, '/pet-detail', arguments: pet['id']),
+                        onTap: () => context.push('/pet-detail', extra: pet['id']),
                         child: Container(
                           margin: const EdgeInsets.only(bottom: 16),
                           decoration: BoxDecoration(
@@ -177,7 +178,7 @@ class _PetProfileScreenState extends State<PetProfileScreen> {
                                           width: double.infinity,
                                           height: 36,
                                           child: ElevatedButton(
-                                            onPressed: () => Navigator.pushNamed(context, '/pet-detail', arguments: pet['id']),
+                                            onPressed: () => context.push('/pet-detail', extra: pet['id']),
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor: MoewColors.primary,
                                               foregroundColor: Colors.white,

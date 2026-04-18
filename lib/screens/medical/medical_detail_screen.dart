@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
 import '../../utils/parse_utils.dart';
 import '../../widgets/common_widgets.dart';
@@ -142,20 +143,50 @@ class MedicalDetailScreen extends StatelessWidget {
 
           SizedBox(height: MoewSpacing.md),
 
-          // ── Cost breakdown button ──
-          OutlinedButton.icon(
-            onPressed: () => Navigator.pushNamed(context, '/cost-breakdown', arguments: {
-              'petId': record['petId'],
-              'recordId': record['id'] ?? record['_id'],
-              'type': type.isNotEmpty ? type : 'medical',
-            }),
-            icon: Icon(Icons.receipt_long, color: MoewColors.secondary),
-            label: Text('Xem chi phí chi tiết', style: TextStyle(color: MoewColors.secondary, fontWeight: FontWeight.w700)),
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(color: MoewColors.secondary),
-              padding: EdgeInsets.symmetric(vertical: 14),
-            ),
-          ),
+          // ── Mini Bill (Cost Items) ──
+          if (record['costItems'] != null && (record['costItems'] as List).isNotEmpty) ...[
+            SizedBox(height: MoewSpacing.md),
+            Text('HÓA ĐƠN CHI TIẾT', style: MoewTextStyles.label),
+            SizedBox(height: MoewSpacing.sm),
+            ...((record['costItems'] as List).map((item) {
+              return Container(
+                margin: EdgeInsets.only(bottom: 8),
+                padding: EdgeInsets.all(MoewSpacing.md),
+                decoration: BoxDecoration(
+                  color: MoewColors.white,
+                  borderRadius: BorderRadius.circular(MoewRadius.lg),
+                  boxShadow: MoewShadows.card,
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: MoewColors.secondary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(Icons.receipt_long, size: 18, color: MoewColors.secondary),
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(item['description']?.toString() ?? 'Chi phí', style: TextStyle(fontWeight: FontWeight.w600, color: MoewColors.textMain)),
+                          SizedBox(height: 2),
+                          Text('${item['type']} • ${_fmtDate(item['date']?.toString() ?? '')}', style: MoewTextStyles.caption),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      formatVND(toDouble(item['amount'])),
+                      style: TextStyle(fontWeight: FontWeight.w700, color: MoewColors.danger),
+                    ),
+                  ],
+                ),
+              );
+            })),
+          ],
           SizedBox(height: MoewSpacing.lg),
 
           // ── Timestamp ──
